@@ -96,3 +96,113 @@ export const login = async (req, res) => {
         });
     }
 }
+
+//get all details'
+export const getUserDetails = async(req, res) => {
+    try {
+        const {id} = req.user;
+        const existingUser = await user.findById(id).select("-password");
+        if(!existingUser){
+            return res.status(400).json({
+                success: false,
+                message: "User does not exist."
+            })
+        }
+        res.status(200).json({
+            success: true,
+            message: "User details retrieved successfully.",
+            user: existingUser
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Server Side Error"
+        })
+    }
+}
+
+//update user details
+export const updateUserDetails = async(req, res) => {
+    try {
+        const {id} = req.user;
+        const {name , contactNumber} = req.body;
+        
+        const existingUser = await user.findById(id);
+        if(!existingUser){
+            return res.status(404).json({
+                success: false,
+                message: "your account not found."
+            })
+        }
+
+        if(name){
+            if(!textValidator(name)) return res.status(400).json({
+                success: false,
+                message: "Name should only contain letters and spaces."
+            })
+            existingUser.name = name;
+        }
+        if(contactNumber){
+            if(!contactNumberValidator(contactNumber)) return res.status(400).json({
+                success: false,
+                message: "Invalid contact number format. It should be in the format +947XXXXXXXXX."
+            })
+            existingUser.contactNumber = contactNumber;
+        }
+
+        if(req.file){
+            existingUser.photo = req.file.filename;
+        }
+
+        await existingUser.save();
+
+        res.status(200).json({
+            success: true,
+            message: "User details updated successfully.",
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Server Side Error"
+        })
+    }
+}
+
+//remove your account
+export const deleteAccount = async (req, res) => {
+    try {
+        const {id} = req.user;
+        const existingUser = await user.findByIdAndDelete(id);
+        if(!existingUser){
+            return res.status(404).json({
+                success: false,
+                message: "Account not found."
+            })
+        }
+        res.status(200).json({
+            success: true,
+            message: "Account deleted successfully."
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Server Side Error."
+        })
+    }
+}
+
+//logout function
+export const logout = async (req, res) => {
+    try {
+        res.clearCookie('access_token').status(200).json({
+        success: true,
+        message: "SignOut Successfully."
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Server Side Error."
+        })
+    }
+}
