@@ -4,8 +4,8 @@ import { Eye, EyeOff, User, Lock, UserPlus } from "lucide-react";
 import { useState } from 'react';
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
-import { register } from '../../apiService/apiService';
 import logo from '../../../public/Logo.png'
+import { register } from '../../apiService/APIservice';
 
 const Signup = () => {
     const navigate = useNavigate();
