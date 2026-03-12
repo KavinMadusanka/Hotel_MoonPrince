@@ -27,8 +27,6 @@ const Signin = () => {
 
     try {
       const res = await login(formData.email, formData.password);
-    //   const data = await response.json();
-    console.log("res",res);
       if (!res.data.success) {
         throw new Error(res.data.message || "Login failed");
       }
@@ -48,7 +46,7 @@ const Signin = () => {
         navigate("/home");
       }
     } catch (error) {
-      toast.error(error.message || "Server Error");
+      toast.error(error.response.data.message || "Server Error");
     } finally {
       setIsLoading(false);
     }
@@ -70,13 +68,13 @@ const Signin = () => {
                 </div>
                 
                 <div className="absolute inset-0 flex flex-col items-left justify-center text-left px-6 wrap-break-word gap-3">
-                  <p className="text-white text-4xl md:text-6xl font-bold tracking-wide">
+                  <p className="text-white text-5xl md:text-6xl font-bold tracking-wide">
                     Welcome Back to
                   </p>
-                  <p className="text-[#D4AF37] text-5xl md:text-7xl font-bold">
+                  <p className="text-[#D4AF37] text-5xl md:text-6xl font-bold">
                     Hotel
                   </p>
-                  <p className="text-[#D4AF37] text-5xl md:text-7xl font-bold">
+                  <p className="text-[#D4AF37] text-5xl md:text-6xl font-bold">
                     MoonPrince
                   </p>
                   <p className="text-white tracking-widest text-lg md:text-xl max-w-xs md:max-w-lg">
@@ -90,12 +88,12 @@ const Signin = () => {
             {/* Right side */}
             <div className='w-full md:w-1/2 justify-center items-center flex p-10'>
                 <div className=' my-12 lg:my-0 border-2 rounded-3xl shadow-lg p-10 justify-center bg-white gap-5 flex flex-col'>
-                    <p className='text-black text-3xl font-bold tracking-wide'>Login to Your Account</p>
+                    <p className='text-purple-800 text-3xl font-bold tracking-wide'>Login to Your Account</p>
                     <p className='text-gray-500'>Please enter your credentials to access your booking</p>
                     <form onSubmit={handleSubmit} className="space-y-5">
-                        <div className="space-y-1 text-left gap-5 flex flex-col">
-                            <label className="text-sm text-gray-600">
-                            Email or Username
+                        <div className="space-y-1 text-left flex flex-col">
+                            <label className="text-sm text-purple-800">
+                            Email Address
                             </label>
                             <div className="relative">
                             <User className="absolute left-3 top-3 text-gray-400" size={18} />
@@ -103,7 +101,7 @@ const Signin = () => {
                                 type="email"
                                 required
                                 placeholder="Enter your email"
-                                className="w-full pl-10 pr-4 py-3 bg-gray-100 text-gray-500 rounded-lg focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition"
+                                className="w-full pl-10 pr-4 py-3 mb-5 bg-gray-100 text-gray-500 rounded-lg focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition"
                                 value={formData.email}
                                 onChange={(e) =>
                                 setFormData({ ...formData, email: e.target.value })
@@ -112,7 +110,7 @@ const Signin = () => {
                             </div>
                             {/* Password */}
                             <div className="space-y-1 text-left">
-                            <label className="text-sm text-gray-600">Password</label>
+                            <label className="text-sm text-purple-800">Password</label>
 
                             <div className="relative">
                                 <Lock
