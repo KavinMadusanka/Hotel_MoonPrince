@@ -137,5 +137,7 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 config.bat
 
+#upload photos folder
+user_photos/
 
 .env
