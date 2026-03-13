@@ -1,4 +1,3 @@
-// validation middleware using joi schemas for request validation
 const validate = (schema, source = "body") => {
   return (req, res, next) => {
     const data = req[source];
@@ -11,11 +10,22 @@ const validate = (schema, source = "body") => {
     if (error) {
       return res.status(400).json({
         message: "Validation failed",
-        errors: error.details.map((detail) => detail.message)
+        errors: error.details.map(d => d.message)
       });
     }
 
-    req[source] = value;
+    // Important fix
+    if (source === "body") {
+      req.body = value;
+    }
+
+    if (source === "params") {
+      req.params = value;
+    }
+
+    // DO NOT overwrite req.query
+    // just leave it as validated
+
     next();
   };
 };

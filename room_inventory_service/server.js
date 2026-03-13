@@ -3,11 +3,10 @@ import dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
-
 import connectDB from "./config/db.js";
-
 import roomTypeRoutes from "./routes/roomTypeRoutes.js";
 import roomRoutes from "./routes/roomRoutes.js";
+import availabilityRoutes from "./routes/availabilityRoutes.js";
 
 dotenv.config();
 
@@ -22,6 +21,7 @@ app.use(morgan("dev"));
 
 app.use("/api/room-types", roomTypeRoutes);
 app.use("/api/rooms", roomRoutes);
+app.use("/api/availability", availabilityRoutes);
 
 app.get("/", (req, res) => {
   res.json({
