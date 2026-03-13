@@ -3,7 +3,9 @@ import dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import swaggerUi from "swagger-ui-express";
 import connectDB from "./config/db.js";
+import swaggerSpec from "./config/swagger.js";
 import roomTypeRoutes from "./routes/roomTypeRoutes.js";
 import roomRoutes from "./routes/roomRoutes.js";
 import availabilityRoutes from "./routes/availabilityRoutes.js";
@@ -20,6 +22,7 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/api/room-types", roomTypeRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/availability", availabilityRoutes);
