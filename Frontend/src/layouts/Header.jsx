@@ -57,14 +57,14 @@ const Header = () => {
     const navLinks = [
         {href : "/home", lable: "Home"},
         {href : "/rooms", lable: "Rooms"},
+        {href : "/home#amenities", lable: "Amenities"},
         {href : "/announcement", lable: "Announcement"},
-        {href : "/about", lable: "About"},
     ]
 
 
 
   return (
-   <nav className='fixed top-0 left-0 right-0 bg-white/80 backdrop-teal-sm backdrop-blur-md z-50  dark:border-gray-900 shadow-sm'>
+   <nav className='fixed top-0 left-0 right-0 bg-white backdrop-teal-sm backdrop-blur-md z-50  dark:border-gray-900 shadow-sm'>
             <div className='w-full container mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-2 md:h-20 h-20'>
                 {/*logo*/}
                 <div className='flex items-center gap-1 cursor-pointer '>
@@ -103,37 +103,38 @@ const Header = () => {
                 </div>
     
                 
-                
-    
                 {/*get touch button*/}
-                    <div className='hidden md:flex gap-3'>
+                    <div className='hidden md:flex gap-3 items-center'>
                     {/* Profile Icon */}
                     <span
                     // onClick={onClick}
-                    className="relative mr-5 flex items-center hover:opacity-75 transition text-gray-500 border-none cursor-pointer"
+                    className=" mr-5 flex items-center hover:opacity-75 transition text-gray-500 cursor-pointer"
                     ><Bell size={25}/></span>
-                    <div
-                        onClick={() => setOpen(!open)}
-                        className="w-10 h-10 rounded-full bg-purple-800 flex justify-center items-center text-white font-bold cursor-pointer overflow-hidden"
-                    >
-                        {auth?.token && user?.photo ? (
-                            <>
-                            {!imageLoaded && <User2 size={24} />}
-                            <img
-                                src={`${import.meta.env.VITE_USER_SERVICE_URL}/user_photos/${user.photo}`}   // replace with user image
-                                alt="profile"
-                                onLoad={() => setImageLoaded(true)}
-                                className="w-full h-full object-cover"
-                            />
-                            </>
-                        ) : (
-                        <User2 size={24} />
-                        )}
+
+                    <div clasname="relative">
+                        <div
+                            onClick={() => setOpen(!open)}
+                            className="w-10 h-10 rounded-full bg-purple-800 flex justify-center items-center text-white font-bold cursor-pointer overflow-hidden"
+                        >
+                            {auth?.token && user?.photo ? (
+                                <>
+                                {!imageLoaded && <User2 size={24} />}
+                                <img
+                                    src={`${import.meta.env.VITE_USER_SERVICE_URL}/user_photos/${user.photo}`}   // replace with user image
+                                    alt="profile"
+                                    onLoad={() => setImageLoaded(true)}
+                                    className="w-full h-full object-cover scale-200 object-top"
+                                />
+                                </>
+                            ) : (
+                            <User2 size={24} />
+                            )}
+                        </div>
                     </div>
 
                     {/* Dropdown */}
                     {open && (
-                        <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border z-50">
+                        <div className="absolute right-0 top-full mt-2 w-40 bg-white rounded-lg shadow-lg border z-50">
                         
                         {auth?.token ? (
                             <>
@@ -160,7 +161,7 @@ const Header = () => {
                                 navigate("/signin");
                                 setOpen(false);
                             }}
-                            className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                            className="block w-full text-left px-4 py-2 bg-white! hover:bg-gray-100!"
                             >
                             Sign In
                             </button>
@@ -168,7 +169,7 @@ const Header = () => {
 
                         </div>
                     )}
-                </div>
+                    </div>
     
                 {/*mobile menu */}
     

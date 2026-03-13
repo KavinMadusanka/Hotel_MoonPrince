@@ -16,7 +16,7 @@ const Layout = ({ children, title, description, keywords, author }) => {
 
       <Header />
       <main className="flex-1  
-      bg-purple-50 min-h-80">
+      bg-purple-50">
       {/* dark:bg-linear-to-b from-blue-950/90 to-gray-900 bg-gray-100 "> */}
         {/* <Toaster /> */}
         {children}

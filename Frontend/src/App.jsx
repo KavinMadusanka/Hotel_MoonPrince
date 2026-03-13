@@ -6,6 +6,7 @@ import './App.css'
 import Signin from './pages/SigninSignupPages/Signin'
 import Signup from './pages/SigninSignupPages/Signup'
 import Home from './pages/HomePages/Home'
+import Amenities from'./pages/HomePages/Amenities'
 
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
         <Route path='/Signin' element={<Signin />} />
         <Route path='/Signup' element={<Signup />} />
         <Route path='/Home' element={<Home />} />
+        {/* <Route path='/Amenities' element={<Amenities />} /> */}
       </Routes>
     </div>
     </>
