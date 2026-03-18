@@ -49,6 +49,26 @@ export const getAnnouncement = async (req, res) => {
             success: true,
             data: announcement
         });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
+// Get All Announcements
+export const getAllAnnouncements = async (req, res) => {
+    try {
+        const announcements = await Announcement.find().sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            count: announcements.length,
+            data: announcements
+        });
+
     } catch (error) {
         res.status(500).json({
             success: false,
