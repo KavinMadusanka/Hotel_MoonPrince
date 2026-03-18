@@ -9,6 +9,12 @@ import Home from './pages/HomePages/Home'
 import ForgetPassword from './pages/SigninSignupPages/ForgetPassword'
 import EmailVerification from './pages/SigninSignupPages/EmailVerification'
 import ResetPassword from './pages/SigninSignupPages/ResetPassword'
+import ManageRoomTypes from './pages/RoomInventory/admin/ManageRoomTypes'
+import AddRoomTypesPage from './pages/RoomInventory/admin/AddRoomTypesPage'
+import ManageRoomsPage from './pages/RoomInventory/admin/ManageRoomsPage'
+import AddRoomPage from './pages/RoomInventory/admin/AddRoomPage'
+import GuestRoomsPage from './pages/RoomInventory/guest/GuestRoomsPage'
+import RoomDetailsPage from './pages/RoomInventory/guest/RoomDetailsPage'
 
 
 function App() {
@@ -25,7 +31,15 @@ function App() {
         <Route path='/forget-password' element={<ForgetPassword />} />
         <Route path='/email-verification' element={<EmailVerification />} />
         <Route path='/reset-password' element={<ResetPassword />} />
-      </Routes>
+
+        {/* Route path for room inventory */}
+        <Route path="/add-room-types" element={<AddRoomTypesPage />} />
+        <Route path="/manage-room-types" element={<ManageRoomTypes />} />
+        <Route path="/add-room" element={<AddRoomPage />} />
+        <Route path="/manage-rooms" element={<ManageRoomsPage />} />
+        <Route path="/guest-rooms" element={<GuestRoomsPage />} />
+        <Route path="/guest-rooms/:id" element={<RoomDetailsPage />} />
+        </Routes>
     </div>
     </>
   )
