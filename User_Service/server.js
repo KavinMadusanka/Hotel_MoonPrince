@@ -22,6 +22,11 @@ const corsOptions = {
     allowedHeaders: ["Content-Type", "Authorization"]
 };
 
+// app.use((req, res, next) => {
+//   console.log("REQUEST PATH:", req.path);
+//   next();
+// });
+
 //middelware
 app.use(express.json());
 app.use(morgan('dev'));

@@ -1,5 +1,6 @@
+import "dotenv/config";
 import express from "express";
-import dotenv from "dotenv";
+//import dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -11,7 +12,7 @@ import roomRoutes from "./routes/roomRoutes.js";
 import availabilityRoutes from "./routes/availabilityRoutes.js";
 import holdRoutes from "./routes/holdRoutes.js";
 
-dotenv.config();
+//dotenv.config();
 
 const app = express();
 
