@@ -210,3 +210,58 @@ export const publishAnnouncement = async (req, res) => {
         });
     }
 };
+
+// Filter Announcements
+export const filterAnnouncements = async (req, res) => {
+    try {
+        const { priority, isPinned, isDraft } = req.query;
+
+        let filter = {};
+
+        if (priority) filter.priority = priority;
+        if (isPinned) filter.isPinned = isPinned === 'true';
+        if (isDraft) filter.isDraft = isDraft === 'true';
+
+        const announcements = await Announcement.find(filter).sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            count: announcements.length,
+            data: announcements
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
+// Get Active Announcements
+export const getActiveAnnouncements = async (req, res) => {
+    try {
+        const today = new Date();
+
+        const announcements = await Announcement.find({
+            isDraft: false,
+            publishDate: { $lte: today },
+            $or: [
+                { expiryDate: { $gte: today } },
+                { expiryDate: null }
+            ]
+        }).sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            count: announcements.length,
+            data: announcements
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};

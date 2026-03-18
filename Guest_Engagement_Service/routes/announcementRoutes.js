@@ -6,12 +6,20 @@ import { createAnnouncement,
     updateAnnouncement,
     deleteAnnouncement, 
     pinAnnouncement,
-    publishAnnouncement} from '../controllers/announcementController.js';
+    publishAnnouncement,
+    filterAnnouncements,
+    getActiveAnnouncements} from '../controllers/announcementController.js';
 
 const router = express.Router();
 
 // Create Announcement
 router.post("/", upload.single('image'), createAnnouncement);
+
+// Filter Announcements
+router.get("/filter", filterAnnouncements);
+
+// Get Single Announcement
+router.get("/active", getActiveAnnouncements);
 
 // Get Single Announcement
 router.get("/:id", getAnnouncement);
