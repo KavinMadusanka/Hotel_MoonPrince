@@ -5,7 +5,8 @@ import { createAnnouncement,
     getAllAnnouncements,
     updateAnnouncement,
     deleteAnnouncement, 
-    pinAnnouncement} from '../controllers/announcementController.js';
+    pinAnnouncement,
+    publishAnnouncement} from '../controllers/announcementController.js';
 
 const router = express.Router();
 
@@ -24,6 +25,9 @@ router.put("/:id", upload.single('image'), updateAnnouncement);
 router.delete("/:id", deleteAnnouncement);
 
 // Pin Announcement
-router.put("/pin/:id", pinAnnouncement)
+router.put("/pin/:id", pinAnnouncement);
+
+// Publish Announcement
+router.put("/publish/:id", publishAnnouncement);
 
 export default router;

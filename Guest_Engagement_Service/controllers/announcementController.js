@@ -184,4 +184,29 @@ export const pinAnnouncement = async (req, res) => {
             error: error.message
         });
     }
-}
+};
+
+// Publish Announcement
+export const publishAnnouncement = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const updated = await Announcement.findByIdAndUpdate(
+            id, 
+            { isDraft: false }, 
+            { new: true }
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "Announcement published successfully",
+            data: updated
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
