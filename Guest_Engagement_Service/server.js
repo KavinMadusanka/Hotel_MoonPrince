@@ -1,13 +1,12 @@
 import express from 'express';
 import colors from 'colors';
-import dotenv from 'dotenv';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import announcementRoutes from './routes/announcementRoutes.js';
 
 import connectDB from './config/db.js';
 
-dotenv.config()
 
 connectDB();
 
@@ -22,6 +21,7 @@ const corsOptions = {
 app.use(express.json());
 app.use(morgan('dev'));
 app.use(cookieParser());
+
 // app.use(cors());
 app.use(cors(corsOptions));
 
@@ -33,6 +33,9 @@ app.get("/", (req, res) => {
 
 //port
 const PORT = process.env.PORT;
+
+//routes
+app.use("/api/v1/announcements", announcementRoutes);
 
 app.listen(PORT, () => {
     console.log(`server running on ${process.env.DEV_MODE} mode on port ${PORT}`.bgCyan.white);
