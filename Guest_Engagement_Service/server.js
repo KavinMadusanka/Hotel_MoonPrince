@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import announcementRoutes from './routes/announcementRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
 
 import connectDB from './config/db.js';
 
@@ -36,6 +37,7 @@ const PORT = process.env.PORT;
 
 //routes
 app.use("/api/v1/announcements", announcementRoutes);
+app.use("/api/v1/reviews", reviewRoutes);
 
 app.listen(PORT, () => {
     console.log(`server running on ${process.env.DEV_MODE} mode on port ${PORT}`.bgCyan.white);
