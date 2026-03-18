@@ -1,6 +1,7 @@
 import express from 'express';
 import { createReview,
-    getSingleReview } from '../controllers/reviewController.js';
+    getSingleReview, 
+    updateReview} from '../controllers/reviewController.js';
 
 const router = express.Router();
 
@@ -9,5 +10,8 @@ router.post("/", createReview);
 
 // Get Single Review
 router.get("/:id", getSingleReview);
+
+// Update Review
+router.put("/:id", updateReview);
 
 export default router;
