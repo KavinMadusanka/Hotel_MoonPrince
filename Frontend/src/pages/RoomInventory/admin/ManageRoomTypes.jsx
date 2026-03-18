@@ -14,7 +14,13 @@ import {
   Trash2,
   Save,
   UploadCloud,
-  Percent
+  Percent,
+  Hotel,
+  FileText,
+  StickyNote,
+  Tag,
+  CheckCircle2,
+  Images
 } from "lucide-react";
 
 function ManageRoomTypes() {
@@ -230,6 +236,11 @@ function ManageRoomTypes() {
       <div className="rounded-[30px] bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.06)] md:p-6">
         <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700">
+              <Hotel size={14} />
+              Admin Panel
+            </div>
+
             <h2 className="m-0 text-[20px] font-bold leading-tight text-[#1f2430] md:text-[24px]">
               Room Types
             </h2>
@@ -239,8 +250,8 @@ function ManageRoomTypes() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-600 shadow-sm">
-            <p className="m-0 font-semibold text-[#7e22ce]">Total Room Types</p>
+          <div className="rounded-2xl bg-[#faf7ff] px-4 py-3 text-sm text-gray-600">
+            <p className="m-0 font-semibold text-violet-700">Total Room Types</p>
             <p className="mt-1 text-xs text-gray-500">
               {roomTypes.length} categories available
             </p>
@@ -248,17 +259,23 @@ function ManageRoomTypes() {
         </div>
 
         {message && (
-          <div className="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+          <div
+            className={`mb-5 rounded-2xl px-4 py-3 text-sm font-medium ${
+              message.toLowerCase().includes("successfully")
+                ? "border border-green-200 bg-green-50 text-green-700"
+                : "border border-red-200 bg-red-50 text-red-700"
+            }`}
+          >
             {message}
           </div>
         )}
 
         {loading ? (
-          <div className="rounded-2xl border border-gray-100 bg-white p-6 text-sm text-gray-500">
+          <div className="rounded-[26px] bg-[#fcfbff] p-6 ring-1 ring-[#ede9fe] text-sm text-gray-500">
             Loading room types...
           </div>
         ) : roomTypes.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-8 text-center text-gray-500">
+          <div className="rounded-[26px] border border-dashed border-[#ddd6fe] bg-[#fcfbff] p-8 text-center text-gray-500">
             No room types found.
           </div>
         ) : (
@@ -268,8 +285,7 @@ function ManageRoomTypes() {
                 key={roomType._id}
                 type="button"
                 onClick={() => openModal(roomType)}
-                className="overflow-hidden rounded-[26px] border border-gray-200 bg-white text-left shadow-[0_8px_25px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(15,23,42,0.10)]"
-                style={{ backgroundColor: "#ffffff" }}
+                className="overflow-hidden rounded-[26px] border border-[#ece7ff] !bg-white text-left shadow-[0_8px_25px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(15,23,42,0.10)]"
               >
                 <div className="relative bg-white">
                   {roomType.images && roomType.images.length > 0 ? (
@@ -301,7 +317,7 @@ function ManageRoomTypes() {
                     {roomType.description || "No description available."}
                   </p>
 
-                  <div className="mt-4 grid grid-cols-2 gap-3 bg-white">
+                  <div className="mt-4 grid grid-cols-2 gap-3">
                     <MiniInfoCard
                       icon={<Users size={16} />}
                       label="Guests"
@@ -406,103 +422,121 @@ function RoomTypeModal({
 
         <div className="p-6">
           <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-            <div>
-              <p className="mb-3 text-sm font-semibold text-[#374151]">
-                Existing Images
-              </p>
-
-              {existingImages.length > 0 ? (
-                <div className="grid grid-cols-2 gap-3">
-                  {existingImages.map((img, index) => (
-                    <div
-                      key={`${img}-${index}`}
-                      className="relative overflow-hidden rounded-[20px] border border-gray-200 bg-white"
-                    >
-                      <img
-                        src={img}
-                        alt={`${roomType.name}-${index}`}
-                        className="h-44 w-full object-cover"
-                      />
-
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveExistingImage(index)}
-                        className="room-action-btn absolute right-2 top-2 rounded-full border border-red-200 p-2 text-red-500 shadow-sm transition hover:bg-red-50 hover:text-red-600"
-                        style={{
-                          backgroundColor: "#ffffff",
-                          backgroundImage: "none",
-                          appearance: "none",
-                          WebkitAppearance: "none"
-                        }}
-                        title="Remove existing image"
-                      >
-                        <Trash2 size={14} style={{ background: "transparent" }} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex h-52 items-center justify-center rounded-[24px] border border-gray-200 bg-[#f9fafb] text-gray-400">
-                  <div className="flex flex-col items-center gap-2">
-                    <ImageOff size={28} />
-                    <span className="text-sm">No existing images</span>
+            <div className="grid gap-6">
+              <section className="rounded-[26px] bg-[#fcfbff] p-5 ring-1 ring-[#ede9fe]">
+                <div className="mb-5 flex items-center gap-3">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-100 text-violet-700">
+                    <Images size={20} />
+                  </span>
+                  <div>
+                    <h2 className="m-0 text-lg font-semibold text-[#1f2430]">
+                      Room Type Images
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Manage existing images and upload new ones.
+                    </p>
                   </div>
                 </div>
-              )}
 
-              <div className="mt-5 rounded-[24px] border-2 border-dashed border-gray-300 bg-white p-5">
-                <div className="mb-3 flex items-center gap-2 text-[#1f2430]">
-                  <UploadCloud size={18} className="text-[#7e22ce]" />
-                  <span className="text-sm font-semibold">Add New Images</span>
-                </div>
-
-                <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-[#1f2430] transition hover:bg-gray-50">
-                  Choose Files
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
-                </label>
-
-                <p className="mt-3 text-xs text-gray-500">
-                  Newly added images will be saved together with the remaining old images.
+                <p className="mb-3 text-sm font-semibold text-[#374151]">
+                  Existing Images
                 </p>
 
+                {existingImages.length > 0 ? (
+                  <div className="grid grid-cols-2 gap-3">
+                    {existingImages.map((img, index) => (
+                      <div
+                        key={`${img}-${index}`}
+                        className="relative overflow-hidden rounded-[20px] border border-[#ece7ff] bg-white"
+                      >
+                        <img
+                          src={img}
+                          alt={`${roomType.name}-${index}`}
+                          className="h-44 w-full object-cover"
+                        />
+
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveExistingImage(index)}
+                          className="room-action-btn absolute right-2 top-2 border-none !bg-transparent p-0 text-red-500 shadow-none hover:text-red-600"
+                          title="Remove existing image"
+                        >
+                          <Trash2 size={16} style={{ background: "transparent" }} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex h-52 items-center justify-center rounded-[24px] border border-[#ece7ff] bg-white text-gray-400">
+                    <div className="flex flex-col items-center gap-2">
+                      <ImageOff size={28} />
+                      <span className="text-sm">No existing images</span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-5 rounded-[24px] border-2 border-dashed border-violet-200 bg-white p-5 text-center">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-100 text-violet-700">
+                    <UploadCloud size={24} />
+                  </div>
+
+                  <h3 className="mt-4 text-base font-semibold text-[#1f2430]">
+                    Add New Images
+                  </h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    PNG, JPG, JPEG or WEBP. You can upload multiple images.
+                  </p>
+
+                  <label className="mt-4 inline-flex cursor-pointer items-center gap-2 rounded-full bg-violet-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-800">
+                    <UploadCloud size={16} />
+                    Choose Files
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                  </label>
+
+                  <p className="mt-3 text-xs text-gray-500">
+                    Newly added images will be saved together with the remaining
+                    old images.
+                  </p>
+                </div>
+
                 {previewUrls.length > 0 && (
-                  <div className="mt-4">
-                    <p className="mb-3 text-sm font-semibold text-[#374151]">
-                      New Selected Images
-                    </p>
+                  <div className="mt-5">
+                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-[#1f2430]">
+                      <CheckCircle2 size={16} className="text-violet-700" />
+                      New Selected Images ({previewUrls.length})
+                    </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       {previewUrls.map((item, index) => (
                         <div
                           key={`${item.file.name}-${index}`}
-                          className="relative overflow-hidden rounded-[20px] border border-gray-200 bg-white"
+                          className="overflow-hidden rounded-[20px] border border-[#ece7ff] bg-white"
                         >
-                          <img
-                            src={item.url}
-                            alt={item.file.name}
-                            className="h-44 w-full object-cover"
-                          />
+                          <div className="relative">
+                            <img
+                              src={item.url}
+                              alt={item.file.name}
+                              className="h-44 w-full object-cover"
+                            />
 
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveNewImage(index)}
-                            className="room-action-btn absolute right-2 top-2 rounded-full border border-red-200 p-2 text-red-500 shadow-sm transition hover:bg-red-50 hover:text-red-600"
-                            style={{
-                              backgroundColor: "#ffffff",
-                              backgroundImage: "none",
-                              appearance: "none",
-                              WebkitAppearance: "none"
-                            }}
-                            title="Remove new image"
-                          >
-                            <Trash2 size={14} style={{ background: "transparent" }} />
-                          </button>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveNewImage(index)}
+                              className="room-action-btn absolute right-2 top-2 border-none !bg-transparent p-0 text-red-500 shadow-none hover:text-red-600"
+                              title="Remove new image"
+                            >
+                              <Trash2
+                                size={16}
+                                style={{ background: "transparent" }}
+                              />
+                            </button>
+                          </div>
 
                           <div className="p-3">
                             <p className="truncate text-sm font-medium text-[#1f2430]">
@@ -514,135 +548,194 @@ function RoomTypeModal({
                     </div>
                   </div>
                 )}
-              </div>
+              </section>
             </div>
 
-            <div className="grid gap-4">
-              <EditField
-                label="Room Type Name"
-                name="name"
-                value={editForm.name}
-                onChange={handleEditChange}
-              />
+            <div className="grid gap-6">
+              <section className="rounded-[26px] bg-[#fcfbff] p-5 ring-1 ring-[#ede9fe]">
+                <div className="mb-5 flex items-center gap-3">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-100 text-violet-700">
+                    <FileText size={20} />
+                  </span>
+                  <div>
+                    <h2 className="m-0 text-lg font-semibold text-[#1f2430]">
+                      Basic Information
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Update the main room type details.
+                    </p>
+                  </div>
+                </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <EditField
-                  label="Max Guests"
-                  name="maxGuests"
-                  type="number"
-                  value={editForm.maxGuests}
+                  icon={<BedDouble size={18} />}
+                  label="Room Type Name"
+                  name="name"
+                  value={editForm.name}
                   onChange={handleEditChange}
                 />
-                <EditField
-                  label="Bed Type"
-                  name="bedType"
-                  value={editForm.bedType}
-                  onChange={handleEditChange}
-                />
-              </div>
 
-              <EditField
-                label="Base Price"
-                name="basePrice"
-                type="number"
-                value={editForm.basePrice}
-                onChange={handleEditChange}
-              />
+                <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <EditField
+                    icon={<Users size={18} />}
+                    label="Max Guests"
+                    name="maxGuests"
+                    type="number"
+                    value={editForm.maxGuests}
+                    onChange={handleEditChange}
+                  />
+                  <EditField
+                    icon={<BedDouble size={18} />}
+                    label="Bed Type"
+                    name="bedType"
+                    value={editForm.bedType}
+                    onChange={handleEditChange}
+                  />
+                </div>
 
-              <div>
-                <label className="mb-2 block text-sm font-medium text-[#374151]">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  value={editForm.description}
-                  onChange={handleEditChange}
-                  rows={4}
-                  className="w-full rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#1f2430] outline-none placeholder:text-gray-400 focus:border-gray-400"
-                />
-              </div>
+                <div className="mt-4">
+                  <EditField
+                    icon={<CircleDollarSign size={18} />}
+                    label="Base Price"
+                    name="basePrice"
+                    type="number"
+                    value={editForm.basePrice}
+                    onChange={handleEditChange}
+                  />
+                </div>
 
-              <div>
+                <div className="mt-4">
+                  <label className="mb-2 block text-sm font-medium text-[#374151]">
+                    Description
+                  </label>
+                  <div className="rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 transition focus-within:border-violet-700">
+                    <textarea
+                      name="description"
+                      value={editForm.description}
+                      onChange={handleEditChange}
+                      rows={4}
+                      className="w-full resize-none border-none bg-transparent text-sm text-[#1f2430] outline-none placeholder:text-gray-400"
+                    />
+                  </div>
+                </div>
+              </section>
+
+              <section className="rounded-[26px] bg-[#fcfbff] p-5 ring-1 ring-[#ede9fe]">
+                <div className="mb-5 flex items-center gap-3">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-100 text-violet-700">
+                    <StickyNote size={20} />
+                  </span>
+                  <div>
+                    <h2 className="m-0 text-lg font-semibold text-[#1f2430]">
+                      Amenities & Features
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Update guest-visible facilities and features.
+                    </p>
+                  </div>
+                </div>
+
                 <label className="mb-2 block text-sm font-medium text-[#374151]">
                   Amenities
                 </label>
-                <textarea
-                  name="amenities"
-                  value={editForm.amenities}
-                  onChange={handleEditChange}
-                  rows={3}
-                  placeholder="WiFi, TV, AC, Mini Bar"
-                  className="w-full rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#1f2430] outline-none placeholder:text-gray-400 focus:border-gray-400"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div className="rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3">
-                  <label className="flex items-center gap-3 text-sm font-medium text-[#374151]">
-                    <input
-                      type="checkbox"
-                      name="discountActive"
-                      checked={editForm.discountActive}
-                      onChange={handleEditChange}
-                      className="h-4 w-4 accent-[#7e22ce]"
-                    />
-                    Discount Active
-                  </label>
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-[#374151]">
-                    Discount Type
-                  </label>
-                  <select
-                    name="discountType"
-                    value={editForm.discountType}
+                <div className="rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 transition focus-within:border-violet-700">
+                  <textarea
+                    name="amenities"
+                    value={editForm.amenities}
                     onChange={handleEditChange}
-                    className="w-full rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#1f2430] outline-none focus:border-gray-400"
-                  >
-                    <option value="PERCENT">PERCENT</option>
-                    <option value="FIXED">FIXED</option>
-                  </select>
+                    rows={3}
+                    placeholder="WiFi, TV, AC, Mini Bar"
+                    className="w-full resize-none border-none bg-transparent text-sm text-[#1f2430] outline-none placeholder:text-gray-400"
+                  />
+                </div>
+              </section>
+
+              <section className="rounded-[26px] bg-[#fcfbff] p-5 ring-1 ring-[#ede9fe]">
+                <div className="mb-5 flex items-center gap-3">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-100 text-violet-700">
+                    <Percent size={20} />
+                  </span>
+                  <div>
+                    <h2 className="m-0 text-lg font-semibold text-[#1f2430]">
+                      Discount Configuration
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Update optional discounts for this room type.
+                    </p>
+                  </div>
                 </div>
 
-                <EditField
-                  label="Discount Value"
-                  name="discountValue"
-                  type="number"
-                  value={editForm.discountValue}
-                  onChange={handleEditChange}
-                />
-              </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <div className="rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3">
+                    <label className="flex items-center gap-3 text-sm font-medium text-[#374151]">
+                      <input
+                        type="checkbox"
+                        name="discountActive"
+                        checked={editForm.discountActive}
+                        onChange={handleEditChange}
+                        className="h-4 w-4 accent-violet-700"
+                      />
+                      Discount Active
+                    </label>
+                  </div>
 
-              <div className="mt-3 flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  onClick={handleUpdate}
-                  disabled={submitting}
-                  className="inline-flex items-center gap-2 rounded-full bg-[#7e22ce] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#6b21a8] disabled:opacity-70"
-                >
-                  <Save size={16} />
-                  {submitting ? "Saving..." : "Save Changes"}
-                </button>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-[#374151]">
+                      Discount Type
+                    </label>
+                    <div className="rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3">
+                      <select
+                        name="discountType"
+                        value={editForm.discountType}
+                        onChange={handleEditChange}
+                        className="w-full border-none bg-transparent text-sm text-[#1f2430] outline-none"
+                      >
+                        <option value="PERCENT">PERCENT</option>
+                        <option value="FIXED">FIXED</option>
+                      </select>
+                    </div>
+                  </div>
 
-                <button
-                  type="button"
-                  onClick={handleDelete}
-                  disabled={submitting}
-                  className="inline-flex items-center gap-2 rounded-full !bg-red-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-red-600 disabled:opacity-70"
-                >
-                  <Trash2 size={16} />
-                  Delete
-                </button>
+                  <EditField
+                    icon={<Tag size={18} />}
+                    label="Discount Value"
+                    name="discountValue"
+                    type="number"
+                    value={editForm.discountValue}
+                    onChange={handleEditChange}
+                  />
+                </div>
 
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="rounded-full bg-[#7e22ce] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#6b21a8]"
-                >
-                  Cancel
-                </button>
-              </div>
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={handleUpdate}
+                    disabled={submitting}
+                    className="inline-flex items-center gap-2 rounded-full bg-violet-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-800 disabled:opacity-70"
+                  >
+                    <Save size={16} />
+                    {submitting ? "Saving..." : "Save Changes"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    disabled={submitting}
+                    className="inline-flex items-center gap-2 rounded-full !bg-red-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-red-600 disabled:opacity-70"
+                  >
+                    <Trash2 size={16} />
+                    Delete
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="rounded-full border border-[#e5e7eb] !bg-gray-500 px-5 py-2.5 text-sm font-semibold text-[#ffffff] transition hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </section>
             </div>
           </div>
         </div>
@@ -662,7 +755,7 @@ function ConfirmDeleteModal({ title, message, onCancel, onConfirm, loading }) {
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-full bg-[#7e22ce] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#6b21a8]"
+            className="rounded-full border border-[#e5e7eb] bg-white px-5 py-2.5 text-sm font-semibold text-[#1f2430] transition hover:bg-gray-50"
           >
             Cancel
           </button>
@@ -681,27 +774,37 @@ function ConfirmDeleteModal({ title, message, onCancel, onConfirm, loading }) {
   );
 }
 
-function EditField({ label, name, value, onChange, type = "text" }) {
+function EditField({
+  icon,
+  label,
+  name,
+  value,
+  onChange,
+  type = "text"
+}) {
   return (
     <div>
       <label className="mb-2 block text-sm font-medium text-[#374151]">
         {label}
       </label>
-      <input
-        name={name}
-        type={type}
-        value={value}
-        onChange={onChange}
-        className="w-full rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#1f2430] outline-none placeholder:text-gray-400 focus:border-gray-400"
-      />
+      <div className="flex items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 transition focus-within:border-violet-700">
+        <span className="text-violet-700">{icon}</span>
+        <input
+          name={name}
+          type={type}
+          value={value}
+          onChange={onChange}
+          className="w-full border-none bg-transparent text-sm text-[#1f2430] outline-none placeholder:text-gray-400"
+        />
+      </div>
     </div>
   );
 }
 
 function MiniInfoCard({ icon, label, value }) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm">
-      <div className="mb-2 text-[#7e22ce]">{icon}</div>
+    <div className="rounded-2xl border border-[#ece7ff] bg-[#fcfbff] p-3 shadow-sm">
+      <div className="mb-2 text-violet-700">{icon}</div>
       <p className="text-[11px] uppercase tracking-[0.12em] text-gray-400">
         {label}
       </p>
