@@ -331,7 +331,7 @@ function RoomModal({
           <button
             type="button"
             onClick={closeModal}
-            className="rounded-2xl bg-violet-700 p-3 text-white transition hover:bg-violet-800"
+            className="rounded-2xl !bg-transparent p-3 !text-gray-500 transition hover:bg-violet-800"
           >
             <X size={20} />
           </button>
@@ -460,7 +460,7 @@ function RoomModal({
                 type="button"
                 onClick={handleDelete}
                 disabled={submitting}
-                className="inline-flex items-center gap-2 rounded-full bg-red-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-red-600 disabled:opacity-70"
+                className="inline-flex items-center gap-2 rounded-full !bg-red-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-red-600 disabled:opacity-70"
               >
                 <Trash2 size={16} />
                 Delete
@@ -469,7 +469,7 @@ function RoomModal({
               <button
                 type="button"
                 onClick={closeModal}
-                className="rounded-full bg-gray-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800"
+                className="rounded-full !bg-gray-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800"
               >
                 Cancel
               </button>

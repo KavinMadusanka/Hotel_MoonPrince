@@ -629,7 +629,7 @@ function RoomTypeModal({
                   type="button"
                   onClick={handleDelete}
                   disabled={submitting}
-                  className="inline-flex items-center gap-2 rounded-full bg-red-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-red-600 disabled:opacity-70"
+                  className="inline-flex items-center gap-2 rounded-full !bg-red-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-red-600 disabled:opacity-70"
                 >
                   <Trash2 size={16} />
                   Delete

@@ -13,7 +13,8 @@ import {
   Users,
   StickyNote,
   CircleDollarSign,
-  Hotel
+  Hotel,
+  Trash2
 } from "lucide-react";
 
 function AddRoomTypePage() {
@@ -31,6 +32,7 @@ function AddRoomTypePage() {
 
   const [images, setImages] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+  const [message, setMessage] = useState("");
 
   const previewUrls = useMemo(() => {
     return images.map((file) => ({
@@ -61,6 +63,7 @@ function AddRoomTypePage() {
 
     try {
       setSubmitting(true);
+      setMessage("");
 
       const formData = new FormData();
       formData.append("name", form.name);
@@ -79,7 +82,7 @@ function AddRoomTypePage() {
 
       await createRoomType(formData);
 
-      alert("Room type created successfully");
+      setMessage("Room type created successfully.");
 
       setForm({
         name: "",
@@ -95,7 +98,7 @@ function AddRoomTypePage() {
       setImages([]);
     } catch (error) {
       console.error(error);
-      alert(error?.response?.data?.message || "Failed to create room type");
+      setMessage(error?.response?.data?.message || "Failed to create room type");
     } finally {
       setSubmitting(false);
     }
@@ -364,13 +367,16 @@ function AddRoomTypePage() {
                           {(item.file.size / 1024).toFixed(1)} KB
                         </p>
 
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="mt-3 rounded-full border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-500 transition hover:bg-red-50"
-                        >
-                          Remove
-                        </button>
+                        <div className="mt-3 flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            title="Remove image"
+                            className="border-none !bg-transparent p-0 text-red-500 shadow-none hover:text-red-600"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -378,6 +384,18 @@ function AddRoomTypePage() {
               </div>
             )}
           </section>
+
+          {message && (
+            <div
+              className={`rounded-2xl px-4 py-3 text-sm font-medium ${
+                message.toLowerCase().includes("successfully")
+                  ? "border border-green-200 bg-green-50 text-green-700"
+                  : "border border-red-200 bg-red-50 text-red-700"
+              }`}
+            >
+              {message}
+            </div>
+          )}
 
           <div className="flex flex-col gap-3 rounded-[26px] bg-[#fffdf7] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)] md:flex-row md:items-center md:justify-between">
             <div>
