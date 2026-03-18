@@ -76,3 +76,40 @@ export const getAllAnnouncements = async (req, res) => {
         });
     }
 };
+
+// Update Announcement
+export const updateAnnouncement = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const updateData = { ...req.body };
+
+        if (req.file) {
+            updateData.image = req.file.path;
+        }
+
+        const updated = await Announcement.findByIdAndUpdate(
+            id, 
+            updateData, 
+            { new: true, runValidators: true });
+
+            if (!updated) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Announcement not found"
+                });
+            }
+
+            res.status(200).json({
+                success: true,
+                message: "Announcement updated successfully",
+                data: updated
+            });
+            
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
