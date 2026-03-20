@@ -20,7 +20,7 @@ app.use(cors({
 app.use(morgan("dev"));
 
 // Routes
-app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/userService", userRoutes);
 // app.use("/api/v1/room", roomRoutes);
 // app.use("/api/v1/guest", guestRoutes);
 app.use("/api/v1/payment", paymentRoutes);

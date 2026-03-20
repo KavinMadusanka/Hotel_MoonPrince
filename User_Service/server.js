@@ -36,7 +36,7 @@ app.use(cors(corsOptions));
 app.use(helmet({crossOriginResourcePolicy: { policy: "cross-origin" }}));
 app.use("/user_photos", express.static("user_photos"));
 
-app.use("/api/v1/user", userRoute);
+app.use("/user", userRoute);
 
 app.get("/", (req, res) => {
     res.send({

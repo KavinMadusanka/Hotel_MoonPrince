@@ -19,7 +19,7 @@ services:
     ports:
       - "8000:8000"
 
-  room_service:
+  room_inventory_service:
     build: ./room_inventory_service
     ports:
       - "8090:8090"
