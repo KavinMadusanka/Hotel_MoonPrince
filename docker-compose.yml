@@ -10,6 +10,7 @@ services:
       - room_inventory_service
       # - guest_service
       - payment_service
+      - reservation_service
     env_file:
       - ./Api_Gateway/.env
 
@@ -24,6 +25,7 @@ services:
       - "8090:8090"
     depends_on:
       - user_service
+      - reservation_service
 
   # guest_service:
   #   build: ./Guest_Engagement_Service
@@ -37,6 +39,14 @@ services:
     depends_on:
       - user_service
 
+  reservation_service:
+    build: ./Reservation_Service
+    ports:
+      - "8060:8060"
+    depends_on:
+      - user_service
+      - room_inventory_service
+
   frontend:
     build: ./Frontend
     ports:
@@ -49,3 +59,4 @@ services:
       - user_service
       - payment_service
       - room_inventory_service
+      - reservation_service

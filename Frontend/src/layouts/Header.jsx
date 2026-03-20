@@ -120,7 +120,7 @@ const Header = () => {
                                 <>
                                 {!imageLoaded && <User2 size={24} />}
                                 <img
-                                    src={`${import.meta.env.VITE_USER_SERVICE_URL}/user_photos/${user.photo}`}   // replace with user image
+                                    src={`${import.meta.env.VITE_USER_SERVICE_URL}${import.meta.env.VITE_API_VERSION}/userService/user_photos/${user.photo}`}   // replace with user image
                                     alt="profile"
                                     onLoad={() => setImageLoaded(true)}
                                     className="w-full h-full object-cover scale-200 object-top"
