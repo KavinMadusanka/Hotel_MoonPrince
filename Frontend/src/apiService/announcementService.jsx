@@ -14,6 +14,16 @@ export const createAnnouncement = async (formData) => {
   });
 };
 
+export const getActiveAnnouncements = async () => {
+  return axios.get(`${GUEST_BASE}/announcements/active`);
+};
+
+export const getAllAnnouncements = async () => {
+  return axios.get(`${GUEST_BASE}/announcements`);
+};
+
 export default {
   createAnnouncement,
+  getActiveAnnouncements,
+  getAllAnnouncements,
 };
