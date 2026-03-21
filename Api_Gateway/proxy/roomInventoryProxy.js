@@ -9,7 +9,13 @@ const roomInventoryProxy = createProxyMiddleware({
   proxyTimeout: 15000,
   timeout: 15000,
   on: {
-    proxyReq: fixRequestBody,
+    proxyReq: (proxyReq, req, res) => {
+      const contentType = req.headers["content-type"] || "";
+
+      if (contentType.includes("application/json")) {
+        fixRequestBody(proxyReq, req, res);
+      }
+    },
     error: (err, req, res) => {
       console.error("Room inventory proxy error:", err.message);
 
