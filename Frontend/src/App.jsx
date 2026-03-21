@@ -20,6 +20,8 @@ import GuestRoomsPage from './pages/RoomInventory/guest/GuestRoomsPage'
 import RoomDetailsPage from './pages/RoomInventory/guest/RoomDetailsPage'
 import ManageHoldsPage from "./pages/RoomInventory/admin/ManageHoldsPage";
 import AvailabilityPage from "./pages/RoomInventory/receptionist/AvailabilityPage";
+import BillingPage from './pages/PaymentPages/ReceptionistPages/BillingPage';
+import PaymentPage from './pages/PaymentPages/GuestPages/PaymentPage';
 
 function App() {
 
@@ -52,6 +54,11 @@ function App() {
           {/* admin */}
           <Route path="/add-announcement" element={<AddAnnouncements />} />
           <Route path="/all-announcements" element={<AllAnnouncements />} />
+
+          {/* Routes for payments */}
+          <Route path="/billing" element={<BillingPage />} />
+          <Route path="/payment" element={<PaymentPage />} />
+
         </Routes>
       </div>
     </>
