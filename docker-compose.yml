@@ -39,6 +39,9 @@ services:
     build: ./Guest_Engagement_Service
     ports:
       - "8080:8080"
+    volumes:
+      - ./Guest_Engagement_Service:/app
+      - /app/node_modules
     depends_on:
       - user_service
       - reservation_service
