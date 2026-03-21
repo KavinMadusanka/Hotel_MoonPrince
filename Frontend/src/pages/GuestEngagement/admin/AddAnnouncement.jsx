@@ -3,7 +3,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from "react-router-dom";
 import AdminPageLayout from "../../../layouts/AdminPageLayout";
-import { createAnnouncement } from "../../../apiService/announcementService";
+import { createAnnouncement, pinAnnouncement } from "../../../apiService/announcementService";
 import {
   Megaphone,
   FileText,
@@ -80,19 +80,22 @@ function AddAnnouncementsPage() {
       const res = await createAnnouncement(formData);
 
       if (res?.status === 201 || res?.status === 200) {
+        // if created and should be pinned (and not saved as draft), call pin endpoint
+        const newId = res?.data?.data?._id;
+        if (!isDraft && form.isPinned && newId) {
+          try {
+            await pinAnnouncement(newId);
+          } catch (err) {
+            console.error("Pin failed:", err);
+          }
+        }
+
         setMessage({ type: "success", text: isDraft ? "Announcement saved as draft." : "Announcement published successfully." });
         // redirect to all announcements
         navigate('/all-announcements');
       } else {
         setMessage({ type: "error", text: res?.data?.message || "Unexpected response from server." });
       }
-
-      setMessage({
-        type: "success",
-        text: isDraft
-          ? "Announcement saved as draft."
-          : "Announcement published successfully.",
-      });
 
       setForm({
         title: "",

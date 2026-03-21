@@ -3,7 +3,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate, useParams } from "react-router-dom";
 import AdminPageLayout from "../../../layouts/AdminPageLayout";
-import { getAnnouncement, updateAnnouncement } from "../../../apiService/announcementService";
+import { getAnnouncement, updateAnnouncement, pinAnnouncement } from "../../../apiService/announcementService";
 import {
   Megaphone,
   FileText,
@@ -115,6 +115,15 @@ function EditAnnouncementPage() {
 
       const res = await updateAnnouncement(id, formData);
       if (res?.status === 200) {
+        // if updated and should be pinned (and not saved as draft), call pin endpoint
+        if (!isDraft && form.isPinned) {
+          try {
+            await pinAnnouncement(id);
+          } catch (err) {
+            console.error("Pin failed:", err);
+          }
+        }
+
         setMessage({ type: "success", text: "Announcement updated successfully." });
         navigate("/all-announcements");
       } else {
