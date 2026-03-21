@@ -8,53 +8,19 @@ import {
 } from "../controllers/holdController.js";
 import validate from "../middleware/validate.js";
 import { createHoldSchema } from "../validations/holdValidation.js";
+import { requiredSignIn, isAdmin } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-/**
- * @swagger
- * tags:
- *   name: Holds
- *   description: Hold management endpoints
- */
+// Reservation/integration route
+router.route("/").post(validate(createHoldSchema), createHold);
 
-/**
- * @swagger
- * /api/holds:
- *   post:
- *     summary: Create a hold
- *     tags: [Holds]
- *   get:
- *     summary: Get all holds
- *     tags: [Holds]
- */
-router.route("/").post(validate(createHoldSchema), createHold).get(getAllHolds);
+// Admin-only hold viewing
+router.route("/").get(requiredSignIn, isAdmin, getAllHolds);
+router.route("/:id").get(requiredSignIn, isAdmin, getHoldById);
 
-/**
- * @swagger
- * /api/holds/{id}:
- *   get:
- *     summary: Get one hold by id
- *     tags: [Holds]
- */
-router.route("/:id").get(getHoldById);
-
-/**
- * @swagger
- * /api/holds/{holdId}/confirm:
- *   post:
- *     summary: Confirm a hold
- *     tags: [Holds]
- */
+// Keep these open for reservation-service integration for now
 router.post("/:holdId/confirm", confirmHold);
-
-/**
- * @swagger
- * /api/holds/{holdId}/release:
- *   post:
- *     summary: Release a hold
- *     tags: [Holds]
- */
 router.post("/:holdId/release", releaseHold);
 
 export default router;
