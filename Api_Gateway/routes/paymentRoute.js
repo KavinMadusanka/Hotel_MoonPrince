@@ -3,8 +3,11 @@ import { createProxyMiddleware } from "http-proxy-middleware";
 const paymentProxy = createProxyMiddleware({
   target: process.env.PAYMENT_SERVICE,
   changeOrigin: true,
-  pathRewrite: (path, req) => {
-    return "/api/v1/payment" + path; // add prefix back
+  onProxyReq: (proxyReq, req, res) => {
+    if (req.user) {
+      proxyReq.setHeader("user-id", req.user.id);
+      proxyReq.setHeader("user-role", req.user.role);
+    }
   },
 });
 
