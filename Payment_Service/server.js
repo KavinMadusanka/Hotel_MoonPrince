@@ -7,6 +7,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 
 import connectDB from './config/db.js';
+import billingRoutes from './routers/billingRoute.js';
 
 dotenv.config()
 
@@ -29,7 +30,7 @@ app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(helmet({crossOriginResourcePolicy: { policy: "cross-origin" }}));
 
-// app.use("/api/v1/payment", userRoute);
+app.use("/billing", billingRoutes);
 
 app.get("/", (req, res) => {
     res.send({
