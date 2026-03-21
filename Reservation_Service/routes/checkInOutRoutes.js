@@ -8,7 +8,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/checkinout/{id}/check-in:
+ * /api/v1/checkinout/{id}/check-in:
  *   post:
  *     summary: Check in a guest for a confirmed reservation
  *     tags: [CheckInOut]
@@ -26,7 +26,7 @@ router.post("/:id/check-in", checkInReservation);
 
 /**
  * @swagger
- * /api/checkinout/{id}/check-out:
+ * /api/v1/checkinout/{id}/check-out:
  *   post:
  *     summary: Check out a guest and complete reservation
  *     tags: [CheckInOut]

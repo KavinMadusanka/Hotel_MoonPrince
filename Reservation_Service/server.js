@@ -31,8 +31,8 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use("/api/reservations", reservationRoutes);
-app.use("/api/checkinout", checkInOutRoutes);
+app.use("/api/v1/reservations", reservationRoutes);
+app.use("/api/v1/checkinout", checkInOutRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
