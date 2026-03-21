@@ -23,11 +23,10 @@ export const requiredSignIn = async (req, res, next) => {
 
 // user check
 export const isUser = (req, res, next) => {
-    const userId = req.headers["user-id"];
-    const role = req.headers["user-role"];
-    if (role !== 0) {
+    const role = req.user?.role;
+    if (!req.user || Number(role) !== 0) {
         return res.status(403).json({
-        message: "Access denied",
+            message: "Access denied",
         });
     }
     next();
@@ -35,11 +34,10 @@ export const isUser = (req, res, next) => {
 
 // admin check
 export const isAdmin = (req, res, next) => {
-    const userId = req.headers["user-id"];
-    const role = req.headers["user-role"];
-    if (role !== 2) {
+    const role = req.user?.role;
+    if (!req.user || Number(role) !== 2) {
         return res.status(403).json({
-        message: "Access denied: Admin only",
+            message: "Access denied: Admin only",
         });
     }
     next();
@@ -47,11 +45,10 @@ export const isAdmin = (req, res, next) => {
 
 // receptionist check
 export const isReceptionist = (req, res, next) => {
-    const userId = req.headers["user-id"];
-    const role = req.headers["user-role"];
-    if (role !== 1) {
+    const role = req.user?.role;
+    if (!req.user || Number(role) !== 1) {
         return res.status(403).json({
-        message: "Access denied: Receptionist only",
+            message: "Access denied: Receptionist only",
         });
     }
     next();

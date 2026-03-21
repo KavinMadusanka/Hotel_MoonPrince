@@ -508,14 +508,6 @@ const AnnouncementsPage = () => {
                     <span>Expires: <strong style={{ color: "#374151" }}>{formatDate(selected.expiryDate)}</strong></span>
                   </div>
                 )}
-
-                {/* Created by */}
-                {selected.createdBy && (
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.82rem", color: "#9ca3af" }}>
-                    <User size={13} color={PURPLE} />
-                    <span>By: <strong style={{ color: "#374151" }}>{selected.createdBy}</strong></span>
-                  </div>
-                )}
               </div>
 
               {/* DIVIDER */}
