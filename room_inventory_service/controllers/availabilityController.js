@@ -88,10 +88,14 @@ export const getAvailability = async (req, res, next) => {
 
     const roomTypeObjectId = new mongoose.Types.ObjectId(roomTypeId);
 
-    const totalRooms = await Room.countDocuments({
+    const allUsableRooms = await Room.find({
       roomType: roomTypeObjectId,
       status: { $in: ["ready", "dirty"] }
-    });
+    })
+      .select("_id roomNumber floor status")
+      .sort({ roomNumber: 1 });
+
+    const totalRooms = allUsableRooms.length;
 
     const heldQty = await getActiveHeldQty({
       roomTypeObjectId,
@@ -113,6 +117,16 @@ export const getAvailability = async (req, res, next) => {
       (priceInfo.finalPricePerNight * nights * qty).toFixed(2)
     );
 
+    // receptionist-friendly list of currently usable rooms
+    // since holds in your model are by qty, not by specific room ids,
+    // we expose the first N usable room numbers as assignable candidates
+    const availableRooms = allUsableRooms.slice(0, availableCount).map((room) => ({
+      _id: room._id,
+      roomNumber: room.roomNumber,
+      floor: room.floor,
+      status: room.status
+    }));
+
     return res.status(200).json({
       roomTypeId: roomType._id,
       roomTypeName: roomType.name,
@@ -127,7 +141,9 @@ export const getAvailability = async (req, res, next) => {
       discountApplied: priceInfo.discountApplied,
       discount: priceInfo.discount,
       finalPricePerNight: priceInfo.finalPricePerNight,
-      estimatedTotal
+      estimatedTotal,
+      availableRooms,
+      suggestedRoomNumbers: availableRooms.slice(0, qty).map((room) => room.roomNumber)
     });
   } catch (error) {
     next(error);
