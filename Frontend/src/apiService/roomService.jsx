@@ -1,81 +1,71 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const USER_SERVICE_URL = import.meta.env.VITE_USER_SERVICE_URL;
+//const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const API_VERSION = import.meta.env.VITE_API_VERSION;
 
+const ROOM_INVENTORY_BASE = `${USER_SERVICE_URL}${API_VERSION}/roomInventoryService`;
+
 export const getRoomTypes = async () => {
-  const res = await axios.get(
-    `${API_BASE_URL}${API_VERSION}/roomInventoryService/room-types`
-  );
-  return res;
+  return axios.get(`${ROOM_INVENTORY_BASE}/room-types`);
 };
 
 export const getRoomTypeById = async (id) => {
-  const res = await axios.get(
-    `${API_BASE_URL}${API_VERSION}/roomInventoryService/room-types/${id}`
-  );
-  return res;
+  return axios.get(`${ROOM_INVENTORY_BASE}/room-types/${id}`);
+};
+
+export const getAvailability = async ({
+  roomTypeId,
+  checkIn,
+  checkOut,
+  qty = 1
+}) => {
+  return axios.get(`${ROOM_INVENTORY_BASE}/availability`, {
+    params: {
+      roomTypeId,
+      checkIn,
+      checkOut,
+      qty
+    }
+  });
 };
 
 export const createRoomType = async (formData) => {
-  const res = await axios.post(
-    `${API_BASE_URL}${API_VERSION}/roomInventoryService/room-types`,
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data"
-      }
+  return axios.post(`${ROOM_INVENTORY_BASE}/room-types`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data"
     }
-  );
-  return res;
+  });
 };
 
 export const updateRoomType = async (id, formData) => {
-  const res = await axios.patch(
-    `${API_BASE_URL}${API_VERSION}/roomInventoryService/room-types/${id}`,
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data"
-      }
+  return axios.patch(`${ROOM_INVENTORY_BASE}/room-types/${id}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data"
     }
-  );
-  return res;
+  });
 };
 
 export const deleteRoomType = async (id) => {
-  const res = await axios.delete(
-    `${API_BASE_URL}${API_VERSION}/roomInventoryService/room-types/${id}`
-  );
-  return res;
+  return axios.delete(`${ROOM_INVENTORY_BASE}/room-types/${id}`);
+};
+
+export const createRoom = async (payload) => {
+  return axios.post(`${ROOM_INVENTORY_BASE}/rooms`, payload);
 };
 
 export const getRooms = async () => {
-  const res = await axios.get(
-    `${API_BASE_URL}${API_VERSION}/roomInventoryService/rooms`
-  );
-  return res;
+  return axios.get(`${ROOM_INVENTORY_BASE}/rooms`);
 };
 
-export const createRoom = async (roomData) => {
-  const res = await axios.post(
-    `${API_BASE_URL}${API_VERSION}/roomInventoryService/rooms`,
-    roomData
-  );
-  return res;
-};
-
-export const updateRoom = async (id, roomData) => {
-  const res = await axios.patch(
-    `${API_BASE_URL}${API_VERSION}/roomInventoryService/rooms/${id}`,
-    roomData
-  );
-  return res;
+export const updateRoom = async (id, payload) => {
+  return axios.patch(`${ROOM_INVENTORY_BASE}/rooms/${id}`, payload);
 };
 
 export const deleteRoom = async (id) => {
-  const res = await axios.delete(
-    `${API_BASE_URL}${API_VERSION}/roomInventoryService/rooms/${id}`
-  );
-  return res;
+  return axios.delete(`${ROOM_INVENTORY_BASE}/rooms/${id}`);
+};
+
+export const updateRoomStatus = async (id, payload) => {
+  return axios.patch(`${ROOM_INVENTORY_BASE}/rooms/${id}/status`, payload);
 };

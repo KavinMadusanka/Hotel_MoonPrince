@@ -755,7 +755,7 @@ function ConfirmDeleteModal({ title, message, onCancel, onConfirm, loading }) {
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-full border border-[#e5e7eb] bg-white px-5 py-2.5 text-sm font-semibold text-[#1f2430] transition hover:bg-gray-50"
+            className="rounded-full bg-gray-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:opacity-70"
           >
             Cancel
           </button>

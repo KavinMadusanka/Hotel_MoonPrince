@@ -7,7 +7,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/availability:
+ * /availability:
  *   get:
  *     summary: Check room availability by room type and date range
  *     tags: [Availability]
@@ -17,24 +17,28 @@ const router = express.Router();
  *         required: true
  *         schema:
  *           type: string
+ *         description: Room type MongoDB ObjectId
  *       - in: query
  *         name: checkIn
  *         required: true
  *         schema:
  *           type: string
- *           example: 2026-03-20
+ *           format: date
+ *         description: Check-in date
  *       - in: query
  *         name: checkOut
  *         required: true
  *         schema:
  *           type: string
- *           example: 2026-03-22
+ *           format: date
+ *         description: Check-out date
  *       - in: query
  *         name: qty
  *         required: false
  *         schema:
  *           type: integer
- *           example: 1
+ *           default: 1
+ *         description: Number of rooms requested
  *     responses:
  *       200:
  *         description: Availability result
@@ -42,10 +46,11 @@ const router = express.Router();
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/AvailabilityResponse'
+ *       400:
+ *         description: Validation error
  *       404:
  *         description: Room type not found
  */
-
 router.get("/", validate(availabilityQuerySchema, "query"), getAvailability);
 
 export default router;

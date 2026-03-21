@@ -31,6 +31,7 @@ app.use("/api/v1/payment", verifyToken, paymentRoutes);
 app.use("/api/v1/reservations", reservationRoutes);
 
 app.use(express.json());
+app.use("/api/v1/roomInventoryService", roomInventoryRoutes);
 
 app.listen(process.env.PORT, () => {
   console.log(`API Gateway running on port ${process.env.PORT}`);
