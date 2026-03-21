@@ -1,109 +1,45 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../../../layouts/Layout.jsx";
 import { Calendar, Pin, Search, ChevronDown, X, Clock, User } from "lucide-react";
+import { getAllAnnouncements } from "../../../apiService/announcementService";
 
 const PURPLE = "#7c22e8";
 const PURPLE_DARK = "#6419c4";
 const PURPLE_PALE = "#f3eaff";
 const PURPLE_BORDER = "#e0ccff";
 
-const announcements = [
-  {
-    id: 1,
-    title: "Royal Weekend Escape: 30% Off Luxury Suites",
-    content:
-      "Indulge in a weekend of celestial luxury with our exclusive seasonal offer. Book any of our Princess Suites and enjoy a complimentary moonlit dinner for two, spa access, and a personalised welcome amenity crafted by our culinary team. Valid for bookings made before November 30th. Terms and conditions apply.",
-    image: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&q=80",
-    publishDate: "2023-10-24",
-    expiryDate: "2023-11-30",
-    isPinned: true,
-    isDraft: false,
-    createdBy: "Admin",
-  },
-  {
-    id: 2,
-    title: "Scheduled Spa Renovation & Enhancements",
-    content:
-      "To provide you with an even more magical wellness experience, our main spa facility will be undergoing minor upgrades from November 5th to November 12th. During this period, select treatments will still be available in our garden wellness pavilion. We apologise for any inconvenience and look forward to welcoming you back to our enhanced sanctuary.",
-    image: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&q=80",
-    publishDate: "2023-10-20",
-    expiryDate: "2023-11-12",
-    isPinned: false,
-    isDraft: false,
-    createdBy: "Admin",
-  },
-  {
-    id: 3,
-    title: "Annual Silver Moon Gala: Reservations Now Open",
-    content:
-      "Join us for an enchanting evening under the full moon. Our annual gala features a seven-course dinner curated by Chef Isabelle Laurent, a live jazz quartet, silent auction, and a spectacular midnight fireworks display over the reflecting pool. Dress code: Black tie. Reservations are limited and expected to sell out. Book your table now to secure your place at the most anticipated event of the year.",
-    image: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=800&q=80",
-    publishDate: "2023-10-15",
-    expiryDate: "2023-12-31",
-    isPinned: false,
-    isDraft: false,
-    createdBy: "Admin",
-  },
-  {
-    id: 4,
-    title: "Annual Silver Moon Gala: Reservations Now Open",
-    content:
-      "Join us for an enchanting evening under the full moon. Our annual gala features a seven-course dinner curated by Chef Isabelle Laurent, a live jazz quartet, silent auction, and a spectacular midnight fireworks display over the reflecting pool. Dress code: Black tie. Reservations are limited and expected to sell out. Book your table now to secure your place at the most anticipated event of the year.",
-    image: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=800&q=80",
-    publishDate: "2023-10-15",
-    expiryDate: "2023-12-31",
-    isPinned: false,
-    isDraft: false,
-    createdBy: "Admin",
-  },
-  {
-  id: 5,
-  title: "Exclusive Winter Wellness Retreat Packages",
-  content:
-    "Experience ultimate relaxation this winter with our specially curated wellness retreats. Enjoy guided meditation sessions, personalized spa therapies, and nourishing gourmet meals designed to rejuvenate your body and mind.",
-  image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&q=80",
-  publishDate: "2023-11-05",
-  expiryDate: "2023-12-20",
-  isPinned: false,
-  isDraft: false,
-  createdBy: "Admin",
-},
-{
-  id: 6,
-  title: "New Rooftop Infinity Pool Now Open",
-  content:
-    "We are delighted to introduce our brand-new rooftop infinity pool offering breathtaking panoramic views. Guests can now unwind while enjoying signature cocktails and sunset experiences in an elevated atmosphere.",
-  image: "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=800&q=80",
-  publishDate: "2023-11-02",
-  expiryDate: "2024-01-01",
-  isPinned: false,
-  isDraft: false,
-  createdBy: "Admin",
-},
-{
-  id: 7,
-  title: "Holiday Dining Experiences Announced",
-  content:
-    "Celebrate the festive season with our exclusive holiday dining experiences. From gourmet buffets to candlelit dinners, our chefs have crafted menus to make your celebrations unforgettable.",
-  image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80",
-  publishDate: "2023-11-08",
-  expiryDate: "2023-12-31",
-  isPinned: false,
-  isDraft: false,
-  createdBy: "Admin",
-},
-];
-
 const AnnouncementsPage = () => {
+  const [announcements, setAnnouncements] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("Newest First");
   const [sortOpen, setSortOpen] = useState(false);
   const [selected, setSelected] = useState(null);
 
+  useEffect(() => {
+    let mounted = true;
+    const fetchAnnouncements = async () => {
+      try {
+        setLoading(true);
+        const res = await getAllAnnouncements();
+        if (mounted) {
+          setAnnouncements(res?.data?.data || []);
+        }
+      } catch (err) {
+        console.error(err);
+        if (mounted) setError(err?.response?.data?.message || err.message || "Failed to load announcements.");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    fetchAnnouncements();
+    return () => { mounted = false; };
+  }, []);
   const sortOptions = ["Newest First", "Oldest First"];
 
-  const filtered = announcements
-    .filter((a) => a.title.toLowerCase().includes(search.toLowerCase()))
+  const filtered = (announcements || [])
+    .filter((a) => (a.title || "").toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
       if (a.isPinned && !b.isPinned) return -1;
       if (!a.isPinned && b.isPinned) return 1;
@@ -273,6 +209,14 @@ const AnnouncementsPage = () => {
               )}
             </div>
           </div>
+
+          {/* Loading / Error */}
+          {loading && (
+            <div style={{ padding: 40, textAlign: "center", color: "#6b7280" }}>Loading announcements…</div>
+          )}
+          {error && (
+            <div style={{ padding: 20, textAlign: "center", color: "#b91c1c" }}>Error: {error}</div>
+          )}
 
           {/* CARDS GRID */}
           <div

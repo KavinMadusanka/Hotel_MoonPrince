@@ -4,5 +4,6 @@ COPY ["package.json", "package-lock.json*", "./"]
 # RUN npm install --production
 RUN npm ci --omit=dev
 COPY . .
-EXPOSE 8081
-CMD ["npm", "start"]
+RUN npm install -g nodemon
+EXPOSE 8080
+CMD ["npm", "run", "dev"]

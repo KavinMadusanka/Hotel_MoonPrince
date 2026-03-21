@@ -1,9 +1,9 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import AdminPageLayout from "../../../layouts/AdminPageLayout";
-import { createAnnouncement, pinAnnouncement } from "../../../apiService/announcementService";
+import { getAnnouncement, updateAnnouncement, pinAnnouncement } from "../../../apiService/announcementService";
 import {
   Megaphone,
   FileText,
@@ -20,7 +20,10 @@ import {
   X
 } from "lucide-react";
 
-function AddAnnouncementsPage() {
+function EditAnnouncementPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     title: "",
     content: "",
@@ -32,31 +35,67 @@ function AddAnnouncementsPage() {
     createdBy: "Admin",
   });
 
-  const [image, setImage] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [remoteImage, setRemoteImage] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
-  const navigate = useNavigate();
 
   const today = new Date();
 
   const previewUrl = useMemo(() => {
-    return image ? URL.createObjectURL(image) : null;
-  }, [image]);
+    if (imageFile) return URL.createObjectURL(imageFile);
+    return remoteImage || null;
+  }, [imageFile, remoteImage]);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await getAnnouncement(id);
+        if (res?.data?.data) {
+          const a = res.data.data;
+          setForm({
+            title: a.title || "",
+            content: a.content || "",
+            priority: a.priority || "normal",
+            publishDate: a.publishDate ? new Date(a.publishDate) : null,
+            expiryDate: a.expiryDate ? new Date(a.expiryDate) : null,
+            isPinned: !!a.isPinned,
+            isDraft: !!a.isDraft,
+            createdBy: a.createdBy || "Admin",
+          });
+          setRemoteImage(a.image || null);
+        }
+      } catch (err) {
+        console.error(err);
+        setMessage({ type: "error", text: "Failed to load announcement." });
+      }
+    };
+    load();
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
-    if (file) setImage(file);
+    if (file) {
+      setImageFile(file);
+      setRemoteImage(null);
+    }
   };
 
-  const removeImage = () => setImage(null);
+  const removeImage = () => {
+    setImageFile(null);
+    setRemoteImage(null);
+  };
+
+  const priorityOptions = [
+    { value: "normal",    label: "Normal",    color: "#16a34a", bg: "#f0fdf4", border: "#86efac" },
+    { value: "important", label: "Important", color: "#d97706", bg: "#fffbeb", border: "#fcd34d" },
+    { value: "urgent",    label: "Urgent",    color: "#dc2626", bg: "#fef2f2", border: "#fca5a5" },
+  ];
 
   const handleSubmit = async (isDraft) => {
     try {
@@ -67,70 +106,42 @@ function AddAnnouncementsPage() {
       formData.append("title", form.title);
       formData.append("content", form.content);
       formData.append("priority", form.priority);
-      formData.append(
-        "publishDate",
-        form.publishDate ? form.publishDate.toISOString() : new Date().toISOString()
-      );
+      formData.append("publishDate", form.publishDate ? form.publishDate.toISOString() : new Date().toISOString());
       if (form.expiryDate) formData.append("expiryDate", form.expiryDate.toISOString());
       formData.append("isPinned", form.isPinned);
       formData.append("isDraft", isDraft);
-      formData.append("createdBy", form.createdBy);
-      if (image) formData.append("image", image);
+      formData.append("createdBy", form.createdBy || "Admin");
+      if (imageFile) formData.append("image", imageFile);
 
-      const res = await createAnnouncement(formData);
-
-      if (res?.status === 201 || res?.status === 200) {
-        // if created and should be pinned (and not saved as draft), call pin endpoint
-        const newId = res?.data?.data?._id;
-        if (!isDraft && form.isPinned && newId) {
+      const res = await updateAnnouncement(id, formData);
+      if (res?.status === 200) {
+        // if updated and should be pinned (and not saved as draft), call pin endpoint
+        if (!isDraft && form.isPinned) {
           try {
-            await pinAnnouncement(newId);
+            await pinAnnouncement(id);
           } catch (err) {
             console.error("Pin failed:", err);
           }
         }
 
-        setMessage({ type: "success", text: isDraft ? "Announcement saved as draft." : "Announcement published successfully." });
-        // redirect to all announcements
-        navigate('/all-announcements');
+        setMessage({ type: "success", text: "Announcement updated successfully." });
+        navigate("/all-announcements");
       } else {
         setMessage({ type: "error", text: res?.data?.message || "Unexpected response from server." });
       }
-
-      setForm({
-        title: "",
-        content: "",
-        priority: "normal",
-        publishDate: "",
-        expiryDate: "",
-        isPinned: false,
-        isDraft: false,
-        createdBy: "Admin",
-      });
-      setImage(null);
     } catch (error) {
       console.error(error);
-      setMessage({
-        type: "error",
-        text: error?.response?.data?.message || "Failed to save announcement.",
-      });
+      setMessage({ type: "error", text: error?.response?.data?.message || "Failed to update announcement." });
     } finally {
       setSubmitting(false);
     }
   };
-
-  const priorityOptions = [
-    { value: "normal",    label: "Normal",    color: "#16a34a", bg: "#f0fdf4", border: "#86efac" },
-    { value: "important", label: "Important", color: "#d97706", bg: "#fffbeb", border: "#fcd34d" },
-    { value: "urgent",    label: "Urgent",    color: "#dc2626", bg: "#fef2f2", border: "#fca5a5" },
-  ];
 
   return (
     <AdminPageLayout>
       <style>{`
         .no-outline:focus { outline: none !important; box-shadow: none !important; }
         .no-outline:focus-visible { outline: none !important; box-shadow: none !important; }
-        input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; }
       `}</style>
 
       <div className="rounded-[30px] bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.06)] md:p-6">
@@ -139,22 +150,19 @@ function AddAnnouncementsPage() {
         <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700">
-              <Megaphone size={14} />
-              Admin Panel
+              <Megaphone size={14} /> Admin Panel
             </div>
             <h2 className="m-0 text-[20px] font-bold leading-tight text-[#1f2430] md:text-[24px]">
-              Add New Announcement
+              Edit Announcement
             </h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
-              Create and publish announcements for hotel guests. Set priority,
-              schedule dates, and pin important notices to the top.
+              Update the announcement details, reschedule dates, or change the pin status.
             </p>
           </div>
-
           <div className="rounded-2xl bg-[#faf7ff] px-4 py-3 text-sm text-gray-600">
-            <p className="m-0 font-semibold text-violet-700">Announcement Setup</p>
+            <p className="m-0 font-semibold text-violet-700">Announcement Edit</p>
             <p className="mt-1 text-xs text-gray-500">
-              Fill in the details and publish or save as draft.
+              Save as draft or republish when ready.
             </p>
           </div>
         </div>
@@ -166,32 +174,35 @@ function AddAnnouncementsPage() {
             <SectionHeader
               icon={<FileText size={20} />}
               title="Basic Information"
-              subtitle="Enter the title, priority level, and schedule for this announcement."
+              subtitle="Update the title, priority level, and schedule for this announcement."
             />
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
 
               {/* Title */}
               <div className="md:col-span-3">
-                <InputField
-                  icon={<Megaphone size={18} />}
-                  label="Announcement Title"
-                  name="title"
-                  value={form.title}
-                  onChange={handleChange}
-                  placeholder="e.g. Royal Weekend Escape: 30% Off Luxury Suites"
-                  required
-                />
+                <label className="mb-2 block text-sm font-medium text-[#374151]">
+                  Announcement Title <span className="text-red-500">*</span>
+                </label>
+                <div className="flex items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 transition focus-within:border-violet-400">
+                  <span className="flex-shrink-0 text-violet-700"><Megaphone size={18} /></span>
+                  <input
+                    name="title"
+                    value={form.title}
+                    onChange={handleChange}
+                    placeholder="e.g. Royal Weekend Escape: 30% Off Luxury Suites"
+                    className="no-outline w-full border-none bg-transparent text-sm text-[#1f2430] outline-none placeholder:text-gray-400"
+                    style={{ outline: "none", boxShadow: "none" }}
+                  />
+                </div>
               </div>
 
-              {/* Priority + Dates (responsive: stacked on small, single row md+) */}
+              {/* Priority + Dates — same row */}
               <div className="md:col-span-3 flex flex-col gap-4 md:flex-row md:items-end md:gap-4">
 
                 {/* Priority */}
                 <div className="w-full md:w-1/3 min-w-0">
-                  <label className="mb-2 block text-sm font-medium text-[#374151]">
-                    Priority Level
-                  </label>
+                  <label className="mb-2 block text-sm font-medium text-[#374151]">Priority Level</label>
                   <div className="flex flex-wrap gap-3">
                     {priorityOptions.map((opt) => {
                       const isActive = form.priority === opt.value;
@@ -209,8 +220,7 @@ function AddAnnouncementsPage() {
                             boxShadow: "none",
                           }}
                         >
-                          <Flag size={14} />
-                          {opt.label}
+                          <Flag size={14} />{opt.label}
                         </button>
                       );
                     })}
@@ -219,13 +229,9 @@ function AddAnnouncementsPage() {
 
                 {/* Publish Date */}
                 <div className="w-full md:w-1/3 min-w-0">
-                  <label className="mb-2 block text-sm font-medium text-[#374151]">
-                    Publish Date
-                  </label>
+                  <label className="mb-2 block text-sm font-medium text-[#374151]">Publish Date</label>
                   <div className="flex items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 transition focus-within:border-violet-400">
-                    <span className="flex-shrink-0 text-violet-700">
-                      <Calendar size={18} />
-                    </span>
+                    <span className="flex-shrink-0 text-violet-700"><Calendar size={18} /></span>
                     <DatePicker
                       selected={form.publishDate}
                       onChange={(date) => setForm((p) => ({ ...p, publishDate: date }))}
@@ -239,13 +245,9 @@ function AddAnnouncementsPage() {
 
                 {/* Expiry Date */}
                 <div className="w-full md:w-1/3 min-w-0">
-                  <label className="mb-2 block text-sm font-medium text-[#374151]">
-                    Expiry Date
-                  </label>
+                  <label className="mb-2 block text-sm font-medium text-[#374151]">Expiry Date</label>
                   <div className="flex items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 transition focus-within:border-violet-400">
-                    <span className="flex-shrink-0 text-violet-700">
-                      <Calendar size={18} />
-                    </span>
+                    <span className="flex-shrink-0 text-violet-700"><Clock size={18} /></span>
                     <DatePicker
                       selected={form.expiryDate}
                       onChange={(date) => setForm((p) => ({ ...p, expiryDate: date }))}
@@ -268,7 +270,6 @@ function AddAnnouncementsPage() {
               title="Announcement Content"
               subtitle="Write the full message that guests will see."
             />
-
             <div>
               <label className="mb-2 block text-sm font-medium text-[#374151]">
                 Content <span className="text-red-500">*</span>
@@ -280,7 +281,6 @@ function AddAnnouncementsPage() {
                   onChange={handleChange}
                   placeholder="Write the full announcement message here..."
                   rows={6}
-                  required
                   className="no-outline w-full resize-none border-none bg-transparent text-sm text-[#1f2430] outline-none placeholder:text-gray-400"
                 />
               </div>
@@ -300,46 +300,35 @@ function AddAnnouncementsPage() {
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-100 text-violet-700">
                   <UploadCloud size={24} />
                 </div>
-                <h3 className="mt-4 text-base font-semibold text-[#1f2430]">
-                  Upload Featured Image
-                </h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  PNG, JPG, JPEG or WEBP — one image only.
-                </p>
+                <h3 className="mt-4 text-base font-semibold text-[#1f2430]">Upload Featured Image</h3>
+                <p className="mt-1 text-sm text-gray-500">PNG, JPG, JPEG or WEBP — one image only.</p>
                 <label className="mt-4 inline-flex cursor-pointer items-center gap-2 rounded-full bg-violet-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-800">
                   <UploadCloud size={16} />
                   Choose Image
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
+                  <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
                 </label>
               </div>
             ) : (
               <div className="overflow-hidden rounded-[22px] border border-[#ece7ff] bg-white shadow-sm">
                 <div className="relative">
-                  <img
-                    src={previewUrl}
-                    alt="preview"
-                    className="h-56 w-full object-cover"
-                  />
+                  <img src={previewUrl} alt="preview" className="h-56 w-full object-cover" />
+                  {/* ── White bg, gray X ── */}
                   <button
                     type="button"
                     onClick={removeImage}
-                    className="no-outline absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border-none bg-white shadow-md transition hover:bg-red-50"
+                    className="no-outline absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border-none shadow-md transition hover:bg-gray-100"
+                    style={{ background: "#ffffff", outline: "none", boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}
                   >
-                    <X size={16} className="text-red-500" />
+                    <X size={15} style={{ color: "#6b7280" }} />
                   </button>
                 </div>
                 <div className="flex items-center justify-between p-3">
                   <div>
                     <p className="truncate text-sm font-medium text-[#1f2430]">
-                      {image?.name}
+                      {imageFile?.name ?? "Current image"}
                     </p>
                     <p className="mt-0.5 text-xs text-gray-500">
-                      {image ? (image.size / 1024).toFixed(1) : 0} KB
+                      {imageFile ? `${(imageFile.size / 1024).toFixed(1)} KB` : "Uploaded"}
                     </p>
                   </div>
                   <CheckCircle2 size={18} className="text-violet-700" />
@@ -373,10 +362,7 @@ function AddAnnouncementsPage() {
                 >
                   <Pin
                     size={18}
-                    style={{
-                      color: form.isPinned ? "#6A0DAD" : "#9ca3af",
-                      transform: "rotate(45deg)",
-                    }}
+                    style={{ color: form.isPinned ? "#6A0DAD" : "#9ca3af", transform: "rotate(45deg)" }}
                   />
                 </div>
                 <div className="text-left">
@@ -416,59 +402,46 @@ function AddAnnouncementsPage() {
           {/* ── ACTION BAR ── */}
           <div className="flex flex-col gap-3 rounded-[26px] bg-[#fffdf7] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)] md:flex-row md:items-center md:justify-between">
             <div>
-              <h3 className="m-0 text-base font-semibold text-[#1f2430]">
-                Ready to publish?
-              </h3>
+              <h3 className="m-0 text-base font-semibold text-[#1f2430]">Save your changes</h3>
               <p className="mt-1 text-sm text-gray-500">
-                Publish now or save as a draft to review later.
+                Republish immediately or save as draft to review later.
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
 
-              {/* Cancel — plain text, no border, no bg */}
+              {/* Cancel */}
               <button
                 type="button"
-                onClick={() => navigate('/all-announcements')}
+                onClick={() => navigate("/all-announcements")}
                 className="no-outline inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium text-[#6b7280] transition hover:text-[#374151]"
                 style={{ background: "none", border: "none", outline: "none", boxShadow: "none" }}
               >
                 Cancel
               </button>
 
-              {/* Save as Draft — purple outline, purple text, white bg */}
+              {/* Save as Draft */}
               <button
                 type="button"
                 disabled={submitting}
                 onClick={() => handleSubmit(true)}
                 className="no-outline inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-70"
-                style={{
-                  background: "#fff",
-                  border: "2px solid #6A0DAD",
-                  color: "#6A0DAD",
-                  outline: "none",
-                  boxShadow: "none",
-                }}
+                style={{ background: "#fff", border: "2px solid #6A0DAD", color: "#6A0DAD", outline: "none", boxShadow: "none" }}
               >
                 <Save size={15} />
                 Save as Draft
               </button>
 
-              {/* Publish — solid purple, white text, arrow icon */}
+              {/* Update / Publish */}
               <button
                 type="button"
                 disabled={submitting || !form.title || !form.content}
                 onClick={() => handleSubmit(false)}
-                className="no-outline inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed"
-                style={{
-                  background: "#6A0DAD",
-                  border: "none",
-                  outline: "none",
-                  boxShadow: "none",
-                }}
+                className="no-outline inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                style={{ background: "#6A0DAD", border: "none", outline: "none", boxShadow: "none" }}
               >
                 <Send size={15} />
-                {submitting ? "Publishing..." : "Publish Announcement"}
+                {submitting ? "Saving..." : "Update Announcement"}
               </button>
 
             </div>
@@ -496,29 +469,4 @@ function SectionHeader({ icon, title, subtitle }) {
   );
 }
 
-function InputField({ icon, label, name, value, onChange, placeholder, type = "text", required = false, hint }) {
-  return (
-    <div>
-      <label className="mb-2 block text-sm font-medium text-[#374151]">
-        {label}
-        {required && <span className="ml-1 text-red-500">*</span>}
-      </label>
-      <div className="flex items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 transition focus-within:border-violet-400">
-        <span className="flex-shrink-0 text-violet-700">{icon}</span>
-        <input
-          name={name}
-          type={type}
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
-          required={required}
-          className="w-full border-none bg-transparent text-sm text-[#1f2430] outline-none placeholder:text-gray-400"
-          style={{ outline: "none", boxShadow: "none" }}
-        />
-      </div>
-      {hint && <p className="mt-1.5 text-xs text-gray-400">{hint}</p>}
-    </div>
-  );
-}
-
-export default AddAnnouncementsPage;
+export default EditAnnouncementPage;

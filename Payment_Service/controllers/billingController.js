@@ -3,6 +3,7 @@ import billing from "../models/billingModel.js";
 //create new billing
 export const createBilling = async (req, res) => {
     try {
+      console.log("first")
         const { userId, roomId, billingItems } = req.body;
         const newBilling = new billing({
             userId,

@@ -9,7 +9,7 @@ export default defineConfig({
     tailwindcss(),
   ],
   server: {
-    host: true,          // 🔥 expose to Docker host
+    host: "0.0.0.0",          // 🔥 expose to Docker host
     port: 5173,          // (optional but good to be explicit)
     watch: {
       usePolling: true,  // 🔥 FIX: enables hot reload in Docker (Windows)

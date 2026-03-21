@@ -9,6 +9,7 @@ import Home from './pages/HomePages/Home'
 import Announcements from './pages/GuestEngagement/guest/Announcements'
 import AddAnnouncements from './pages/GuestEngagement/admin/AddAnnouncement'
 import AllAnnouncements from './pages/GuestEngagement/admin/AllAnnouncements'
+import EditAnnouncement from './pages/GuestEngagement/admin/EditAnnouncement'
 import ForgetPassword from './pages/SigninSignupPages/ForgetPassword'
 import EmailVerification from './pages/SigninSignupPages/EmailVerification'
 import ResetPassword from './pages/SigninSignupPages/ResetPassword'
@@ -20,6 +21,8 @@ import GuestRoomsPage from './pages/RoomInventory/guest/GuestRoomsPage'
 import RoomDetailsPage from './pages/RoomInventory/guest/RoomDetailsPage'
 import ManageHoldsPage from "./pages/RoomInventory/admin/ManageHoldsPage";
 import AvailabilityPage from "./pages/RoomInventory/receptionist/AvailabilityPage";
+import BillingPage from './pages/PaymentPages/ReceptionistPages/BillingPage';
+import PaymentPage from './pages/PaymentPages/GuestPages/PaymentPage';
 
 function App() {
 
@@ -52,6 +55,12 @@ function App() {
           {/* admin */}
           <Route path="/add-announcement" element={<AddAnnouncements />} />
           <Route path="/all-announcements" element={<AllAnnouncements />} />
+          <Route path="/edit-announcement/:id" element={<EditAnnouncement />} />
+
+          {/* Routes for payments */}
+          <Route path="/billing" element={<BillingPage />} />
+          <Route path="/payment" element={<PaymentPage />} />
+
         </Routes>
       </div>
     </>
