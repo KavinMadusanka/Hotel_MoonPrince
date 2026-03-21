@@ -8,7 +8,6 @@ services:
     volumes:
       - ./Api_Gateway:/app
       - /app/node_modules
-
     depends_on:
       - user_service
       - room_inventory_service

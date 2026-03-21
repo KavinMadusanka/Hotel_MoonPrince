@@ -36,7 +36,7 @@ function AdminSidebar() {
     "ml-11 flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition !text-white visited:!text-white";
 
   return (
-    <aside className="min-h-[calc(100vh-40px)] rounded-[30px] bg-white p-5 text-purple-800 shadow-[0_10px_30px_rgba(15,23,42,0.15)]">
+    <aside className="min-h-screen rounded-[30px] bg-white p-5 text-purple-800 shadow-[0_10px_30px_rgba(15,23,42,0.15)]">
       <div className="border-b border-white/10 pb-5">
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl text-purple-800">
