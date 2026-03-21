@@ -17,7 +17,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/reservations:
+ * /api/v1/reservations:
  *   post:
  *     summary: Create a new reservation
  *     tags: [Reservations]
@@ -35,7 +35,7 @@ router.post("/", validateCreateReservation, createReservation);
 
 /**
  * @swagger
- * /api/reservations:
+ * /api/v1/reservations:
  *   get:
  *     summary: Get all reservations
  *     tags: [Reservations]
@@ -47,7 +47,7 @@ router.get("/", getAllReservations);
 
 /**
  * @swagger
- * /api/reservations/user/{userId}:
+ * /api/v1/reservations/user/{userId}:
  *   get:
  *     summary: Get reservations by user ID
  *     tags: [Reservations]
@@ -65,7 +65,7 @@ router.get("/user/:userId", getReservationsByUserId);
 
 /**
  * @swagger
- * /api/reservations/{id}:
+ * /api/v1/reservations/{id}:
  *   get:
  *     summary: Get reservation by ID
  *     tags: [Reservations]
@@ -83,7 +83,7 @@ router.get("/:id", getReservationById);
 
 /**
  * @swagger
- * /api/reservations/{id}:
+ * /api/v1/reservations/{id}:
  *   put:
  *     summary: Update reservation basic details
  *     tags: [Reservations]
@@ -107,7 +107,7 @@ router.put("/:id", validateUpdateReservation, updateReservation);
 
 /**
  * @swagger
- * /api/reservations/{id}/confirm:
+ * /api/v1/reservations/{id}/confirm:
  *   post:
  *     summary: Confirm a reservation
  *     tags: [Reservations]
@@ -125,7 +125,7 @@ router.post("/:id/confirm", confirmReservation);
 
 /**
  * @swagger
- * /api/reservations/{id}/cancel:
+ * /api/v1/reservations/{id}/cancel:
  *   post:
  *     summary: Cancel a reservation
  *     tags: [Reservations]
