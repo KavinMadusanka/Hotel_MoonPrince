@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import { PlusCircle } from "lucide-react";
 import { addBillToReservation, getBillingItems } from "../../../apiService/PaymentService";
 
-const AddBillItemToBillModal = ({ isOpen, onClose, onAdd, billId, reservation }) => {
+const AddBillItemToBillModal = ({ isOpen, onClose, onAdd, bill, reservation }) => {
   const [items, setItems] = useState([]);
   const [selectedId, setSelectedId] = useState("");
 
@@ -61,7 +61,7 @@ const AddBillItemToBillModal = ({ isOpen, onClose, onAdd, billId, reservation })
       return;
     }
 
-    const newItem = await addBillToReservation( billId ,form);
+    const newItem = await addBillToReservation( bill._id ,form);
     console.log(newItem.data.data.billingItems);
     onAdd(reservation);
 
