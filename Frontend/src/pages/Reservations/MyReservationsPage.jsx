@@ -43,6 +43,7 @@ function MyReservationsPage() {
 
   useEffect(() => {
     fetchReservations();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCancel = async (id) => {
@@ -61,8 +62,8 @@ function MyReservationsPage() {
     }
   };
 
-  const handleReview = (reservation) => {
-    navigate(`/give-review/${reservation._id}`, { state: { reservation } });
+  const handleReview = (reservationId) => {
+    navigate(`/write-review/${reservationId}`);
   };
 
   const getStatusStyles = (status) => {
@@ -195,7 +196,7 @@ function MyReservationsPage() {
                       {(item.status === "checked_in" || item.status === "completed") && (
                         <button
                           type="button"
-                          onClick={() => handleReview(item)}
+                          onClick={() => handleReview(item._id)}
                           className="inline-flex items-center gap-2 rounded-full bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-600"
                         >
                           <Star size={14} />
