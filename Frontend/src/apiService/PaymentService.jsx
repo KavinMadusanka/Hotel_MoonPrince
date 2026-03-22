@@ -43,3 +43,14 @@ export const addBillToReservation = async (billingId, itemData) => {
             withCredentials: true,
     });
 }
+
+//remove item from bill
+export const removeItemFromBill = async (billingId, itemId) => {
+    console.log(billingId)
+    console.log(itemId)
+    return axios.delete(`${BASE_URL}${API_VERSION}/payment/billing/remove-item/${billingId}/${itemId}`,
+        {
+            withCredentials: true,
+        }
+    );
+}

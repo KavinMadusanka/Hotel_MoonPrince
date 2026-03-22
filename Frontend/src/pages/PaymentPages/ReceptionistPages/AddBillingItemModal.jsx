@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import { addBillingItemType } from "../../../apiService/PaymentService";
 import { PlusCircle } from "lucide-react";
 
-const AddBillingItemModal = ({ isOpen, onClose, onAdd }) => {
+const AddBillingItemModal = ({ isOpen, onClose, onAdd , reservation}) => {
   const [item, setItem] = useState({
     ItemType: "",
     Description: "",
@@ -22,9 +22,8 @@ const AddBillingItemModal = ({ isOpen, onClose, onAdd }) => {
         const res = await addBillingItemType(item);
 
         if (res.data.success) {
-        const createdItem = res.data.data;
 
-        onAdd(createdItem);
+        onAdd(reservation);
 
         toast.success("Item added successfully");
 

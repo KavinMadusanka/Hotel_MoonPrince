@@ -1,9 +1,9 @@
 import React from 'react'
 import AdminPageLayout from '../../../layouts/AdminPageLayout';
-import { ClipboardList, PlusCircle, Trash, UserSearch } from 'lucide-react';
+import { ClipboardList, PlusCircle, Printer, Trash, UserSearch } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getRooms } from '../../../apiService/roomService';
-import { getAllReservations, getBillDetails } from '../../../apiService/PaymentService';
+import { getAllReservations, getBillDetails, removeItemFromBill } from '../../../apiService/PaymentService';
 import { getUserDetailsById } from '../../../apiService/userService';
 import AddBillingItemModal from './AddBillingItemModal';
 import AddBillItemToBillModal from './AddBillItemToBillModel';
@@ -13,17 +13,38 @@ const BillingPage = () => {
     const [billingItems, setBillingItems] = React.useState([]);
     const [reservation, setReservation] = React.useState(null);
     const [user, setUser] = React.useState(null);
-    const [billId, setBillId] = React.useState(null);
+    const [bill, setBill] = React.useState(null);
 
     const [showModal, setShowModal] = React.useState(false);
     const [showAddItemModal, setShowAddItemModal] = React.useState(false);
+
+    const roomCharges = billingItems
+        .filter(item => item.ItemType === "Accommodation")
+        .reduce((acc, item) => acc + item.QTY * item.UnitPrice, 0);
+
+    const foodCharges = billingItems
+        .filter(item => item.ItemType === "Food & Beverages")
+        .reduce((acc, item) => acc + item.QTY * item.UnitPrice, 0);
+
+    const additionalCharges = billingItems
+        .filter(item => item.ItemType !== "Accommodation" && item.ItemType !== "Food & Beverages")
+        .reduce((acc, item) => acc + item.QTY * item.UnitPrice, 0);
+
+    const subTotal = billingItems.reduce(
+        (acc, item) => acc + item.QTY * item.UnitPrice,
+        0
+    );
+
+    const tax = subTotal * 0.10; // or dynamic later
+
+    const total = subTotal + tax;
 
     const handleAddItem = async (reservation) => {
         // console.log(reservation);
         const billDetails = await getBillDetails(reservation.userId, reservation.roomId);
         // console.log("Billing Details: ", billDetails.data.data.billingItems);
         setBillingItems(billDetails.data.data.billingItems);
-        setBillId(billDetails.data.data._id);
+        setBill(billDetails.data.data);
     };
 
 
@@ -53,20 +74,16 @@ const BillingPage = () => {
             // console.log("User Details: ", userDetails);
             setUser(userDetails.data.user);
             handleAddItem(reservation);
-            // const billDetails = await getBillDetails(reservation.userId, reservation.roomId);
-            // console.log("Billing Details: ", billDetails.data.data.billingItems);
-            // setBillingItems(billDetails.data.data.billingItems);
-            // setBillId(billDetails.data.data._id);
-
 
         } catch (error) {
             toast.error(error.response.data.message || "Server Error");
         }
     }
 
-    const handleDeleteItem = (id) => {
-        const updatedItems = billingItems.filter(item => item._id !== id);
-        setBillingItems(updatedItems);
+    const handleDeleteItem = async (id) => {
+        const updatedItems = await removeItemFromBill(bill._id, id);
+        console.log(updatedItems.data.data.billingItems);
+        setBillingItems(updatedItems.data.data.billingItems);
     };
 
   return (
@@ -202,17 +219,101 @@ const BillingPage = () => {
             </div>
 
             {/* Right side view */}
-            <div className='w-1/3  pl-0 md:pl-12 text-purple-800 pt-1 md:pt-3' >
-                <a href='/projects'>
-                <p className='hidden md:flex flex-row justify-end'>
-                    Explore all projects 
-                </p>
-                </a>
-                <a href='/projects'>
-                <p className='md:hidden flex justify-end'>
-                    See All
-                </p>
-                </a>
+            <div className='w-1/3  pl-0 md:pl-12 pt-1 md:pt-3' >
+                <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+        
+                    {/* HEADER */}
+                    <div className="bg-[#6A0DAD] p-5 text-white">
+                    <h2 className="text-lg font-semibold">Billing Summary</h2>
+                    <p className="text-sm opacity-90">
+                        Review items and finalize payment
+                    </p>
+                    </div>
+
+                    {/* BODY */}
+                    <div className="p-5 space-y-4 text-gray-700">
+                    
+                    {/* Charges */}
+                    <div className="flex justify-between">
+                        <span>Room Charges</span>
+                        <span>Rs. {roomCharges.toLocaleString()}</span>
+                    </div>
+
+                    <div className="flex justify-between">
+                        <span>Food & Beverages</span>
+                        <span>Rs. {foodCharges.toLocaleString()}</span>
+                    </div>
+
+                    <div className="flex justify-between">
+                        <span>Additional Services</span>
+                        <span>Rs. {additionalCharges.toLocaleString()}</span>
+                    </div>
+
+                    <hr />
+
+                    <div className="flex justify-between font-medium">
+                        <span>Subtotal</span>
+                        <span>Rs. {subTotal.toLocaleString()}</span>
+                    </div>
+
+                    <div className="flex justify-between">
+                        <span>Tax (10%)</span>
+                        <span>Rs. {tax.toLocaleString()}</span>
+                    </div>
+
+                    {/* TOTAL */}
+                    <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 flex justify-between items-center mt-4">
+                        <span className="text-purple-700 font-semibold">
+                        Total Amount
+                        </span>
+                        <span className="text-yellow-500 text-xl font-bold">
+                        Rs. {total.toLocaleString()}
+                        </span>
+                    </div>
+
+                    {/* PAYMENT METHOD */}
+                    <div className="mt-5">
+                        <p className="text-xs text-gray-400 mb-1">
+                        PAYMENT METHOD
+                        </p>
+
+                        <select className="w-full border rounded-lg p-2">
+                        <option>Credit Card (VISA ... 4242)</option>
+                        <option>Cash</option>
+                        <option>Online Payment</option>
+                        </select>
+                    </div>
+
+                    {/* PAYMENT STATUS */}
+                    <div className="mt-4 flex items-center justify-between">
+                        <p className="text-xs text-gray-400">
+                        PAYMENT STATUS
+                        </p>
+
+                        <div className="flex items-center gap-2">
+
+                        <span className="text-purple-600 text-sm font-medium">
+                            {bill?.status}
+                        </span>
+                        </div>
+                    </div>
+
+                    {/* BUTTONS */}
+                    <div className="mt-6 space-y-3">
+                        
+                        <button className="w-full text-white py-3 rounded-xl flex items-center justify-center gap-2 shadow-md hover:opacity-90">
+                        <Printer size={18} />
+                        Generate Invoice
+                        </button>
+
+                        <button className="w-full border border-purple-300 text-white py-3 rounded-xl hover:bg-purple-50">
+                        Send to Guest Email
+                        </button>
+
+                    </div>
+
+                    </div>
+                </div>
             </div>
         </section>
         <div>
@@ -226,12 +327,13 @@ const BillingPage = () => {
             isOpen={showModal}
             onClose={() => setShowModal(false)}
             onAdd={handleAddItem}
+            reservation={reservation}
         />
         <AddBillItemToBillModal
             isOpen={showAddItemModal}
             onClose={() => setShowAddItemModal(false)}
             onAdd={handleAddItem}
-            billId={billId}
+            bill={bill}
             reservation={reservation}
         />
     </div>
