@@ -5,7 +5,11 @@ import Review from "../models/Review.js";
 export const createReview = async (req, res) => {
     try {
         const { roomId, bookingId, rating, comment } = req.body;
-        const userId = "65f1a2b3c4d5e6f789012345";
+        const userId = req.user?.id;
+
+        if (!userId) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
 
         // check duplicate review for the same booking
         const existing = await Review.findOne({ bookingId });
@@ -76,7 +80,11 @@ export const getSingleReview = async (req, res) => {
 export const updateReview = async (req, res) => {
     try {
         const { id } = req.params;
-        const userId = "65f1a2b3c4d5e6f789012345";
+        const userId = req.user?.id;
+
+        if (!userId) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
 
         const review = await Review.findById(id);
 
@@ -148,7 +156,11 @@ export const getReviewsByRoomId = async (req, res) => {
 export const deleteReview = async (req, res) => {
     try {
         const { id } = req.params;
-        const userId = "65f1a2b3c4d5e6f789012345";
+        const userId = req.user?.id;
+
+        if (!userId) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
 
         const review = await Review.findById(id);
 
@@ -229,17 +241,19 @@ export const pinReview = async (req, res) => {
 // Get Reviews by User
 export const getReviewsByUser = async (req, res) => {
     try {
-        const userId = "65f1a2b3c4d5e6f789012345";
+        // prefer explicit param, fallback to authenticated user
+        const userId = req.params.userId || req.user?.id;
+
+        if (!userId) {
+            return res.status(400).json({ message: "User ID is required" });
+        }
 
         // validate ObjectId
         if (!mongoose.Types.ObjectId.isValid(userId)) {
-            return res.status(400).json({
-                message: "Invalid user ID"
-            });
+            return res.status(400).json({ message: "Invalid user ID" });
         }
 
-        const reviews = await Review.find({ userId })
-            .sort({ createdAt: -1 });
+        const reviews = await Review.find({ userId }).sort({ createdAt: -1 });
 
         res.status(200).json({
             success: true,

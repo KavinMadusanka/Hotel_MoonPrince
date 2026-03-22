@@ -378,6 +378,11 @@ export default function AllAnnouncementsPage() {
                 {selected.isDraft && (
                   <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-600">Draft</span>
                 )}
+                {selected.createdBy && (
+                  <span className="flex items-center gap-1 text-xs text-gray-400">
+                    <User size={11} className="text-violet-400" /> {selected.createdBy}
+                  </span>
+                )}
               </div>
 
               <div style={{ height: "1px", background: "#ede9fe", marginBottom: "16px" }} />

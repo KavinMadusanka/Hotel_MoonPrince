@@ -46,7 +46,7 @@ export const isAdmin = (req, res, next) => {
 // receptionist check
 export const isReceptionist = (req, res, next) => {
     const role = req.user.role;
-    console.log(role);
+    // console.log(role);
     if (role !== 1) {
         return res.status(403).json({
         message: "Access denied: Receptionist only",

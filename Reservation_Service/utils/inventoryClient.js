@@ -24,7 +24,7 @@ export const createHold = async ({ reservationCode, roomTypeId, checkIn, checkOu
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Accept": "application/json"
+      Accept: "application/json"
     },
     body: JSON.stringify(payload)
   });
@@ -49,11 +49,13 @@ export const createHold = async ({ reservationCode, roomTypeId, checkIn, checkOu
     );
   }
 
-  return data.hold;
+  return data.data || data.hold || data;
 };
 
 export const confirmHold = async (holdId) => {
-  if (!INVENTORY_URL) return;
+  if (!INVENTORY_URL) {
+    throw new ApiError(503, "Inventory service URL not configured");
+  }
 
   const url = `${INVENTORY_URL}/holds/${holdId}/confirm`;
   console.log(`[inventoryClient] POST ${url}`);
@@ -62,7 +64,7 @@ export const confirmHold = async (holdId) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Accept": "application/json"
+      Accept: "application/json"
     }
   });
 
@@ -86,11 +88,13 @@ export const confirmHold = async (holdId) => {
     );
   }
 
-  return data.hold;
+  return data.data || data.hold || data;
 };
 
 export const releaseHold = async (holdId) => {
-  if (!INVENTORY_URL) return;
+  if (!INVENTORY_URL) {
+    throw new ApiError(503, "Inventory service URL not configured");
+  }
 
   const url = `${INVENTORY_URL}/holds/${holdId}/release`;
   console.log(`[inventoryClient] POST ${url}`);
@@ -99,12 +103,29 @@ export const releaseHold = async (holdId) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Accept": "application/json"
+      Accept: "application/json"
     }
   });
 
-  if (!response.ok) {
-    const text = await response.text();
-    console.error(`[inventoryClient] Failed to release hold ${holdId}:`, text);
+  const text = await response.text();
+  console.log(`[inventoryClient] Release response (${response.status}):`, text);
+
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new ApiError(
+      502,
+      `Inventory service returned invalid response: ${text.slice(0, 200)}`
+    );
   }
+
+  if (!response.ok) {
+    throw new ApiError(
+      response.status,
+      data.message || "Failed to release hold in inventory service"
+    );
+  }
+
+  return data.data || data.hold || data;
 };

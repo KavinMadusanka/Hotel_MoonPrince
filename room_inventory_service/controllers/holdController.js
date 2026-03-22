@@ -5,8 +5,18 @@ import mongoose from "mongoose";
 
 export const createHold = async (req, res, next) => {
   try {
-    const { roomType, checkIn, checkOut, qty, guestName, guestEmail, notes } =
-      req.body;
+    const {
+      reservationId,
+      roomType,
+      checkIn,
+      checkOut,
+      qty = 1,
+      createdBy
+    } = req.body;
+
+    if (!reservationId) {
+      return res.status(400).json({ message: "reservationId is required" });
+    }
 
     if (!mongoose.Types.ObjectId.isValid(roomType)) {
       return res.status(400).json({ message: "Invalid roomType id" });
@@ -15,6 +25,15 @@ export const createHold = async (req, res, next) => {
     const roomTypeDoc = await RoomType.findById(roomType);
     if (!roomTypeDoc) {
       return res.status(404).json({ message: "Room type not found" });
+    }
+
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+
+    if (checkInDate >= checkOutDate) {
+      return res.status(400).json({
+        message: "checkOut must be after checkIn"
+      });
     }
 
     const totalRooms = await Room.countDocuments({
@@ -28,8 +47,8 @@ export const createHold = async (req, res, next) => {
           roomType: new mongoose.Types.ObjectId(roomType),
           status: "held",
           expiresAt: { $gt: new Date() },
-          checkIn: { $lt: new Date(checkOut) },
-          checkOut: { $gt: new Date(checkIn) }
+          checkIn: { $lt: checkOutDate },
+          checkOut: { $gt: checkInDate }
         }
       },
       {
@@ -45,8 +64,8 @@ export const createHold = async (req, res, next) => {
         $match: {
           roomType: new mongoose.Types.ObjectId(roomType),
           status: "confirmed",
-          checkIn: { $lt: new Date(checkOut) },
-          checkOut: { $gt: new Date(checkIn) }
+          checkIn: { $lt: checkOutDate },
+          checkOut: { $gt: checkInDate }
         }
       },
       {
@@ -61,7 +80,7 @@ export const createHold = async (req, res, next) => {
     const confirmedQty = confirmed[0]?.totalQty || 0;
     const availableCount = Math.max(0, totalRooms - heldQty - confirmedQty);
 
-    if (availableCount < qty) {
+    if (availableCount < Number(qty)) {
       return res.status(409).json({
         message: "Not enough rooms available for this hold request"
       });
@@ -70,96 +89,54 @@ export const createHold = async (req, res, next) => {
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
     const hold = await Hold.create({
+      reservationId,
       roomType,
-      checkIn,
-      checkOut,
-      qty,
-      guestName,
-      guestEmail,
-      notes,
+      checkIn: checkInDate,
+      checkOut: checkOutDate,
+      qty: Number(qty),
       status: "held",
-      expiresAt
+      expiresAt,
+      createdBy: createdBy || "reservation-service"
     });
 
     const populatedHold = await Hold.findById(hold._id).populate("roomType");
 
     return res.status(201).json({
+      success: true,
       message: "Hold created successfully",
-      hold: populatedHold
+      data: populatedHold
     });
   } catch (error) {
     next(error);
   }
 };
 
-export const getAllHolds = async (req, res, next) => {
+export const releaseHold = async (req, res, next) => {
   try {
-    const { status, search } = req.query;
+    const { holdId } = req.params;
 
-    const query = {};
-
-    if (status && status !== "all") {
-      query.status = status;
-    }
-
-    if (search) {
-      query.$or = [
-        { guestName: { $regex: search, $options: "i" } },
-        { guestEmail: { $regex: search, $options: "i" } }
-      ];
-    }
-
-    let holds = await Hold.find(query)
-      .populate("roomType")
-      .sort({ createdAt: -1 });
-
-    const now = new Date();
-    let hasExpiredUpdates = false;
-
-    for (const hold of holds) {
-      if (
-        hold.status === "held" &&
-        hold.expiresAt &&
-        new Date(hold.expiresAt) <= now
-      ) {
-        hold.status = "expired";
-        await hold.save();
-        hasExpiredUpdates = true;
-      }
-    }
-
-    if (hasExpiredUpdates) {
-      holds = await Hold.find(query)
-        .populate("roomType")
-        .sort({ createdAt: -1 });
-    }
-
-    return res.status(200).json(holds);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const getHoldById = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-
-    const hold = await Hold.findById(id).populate("roomType");
+    const hold = await Hold.findById(holdId).populate("roomType");
 
     if (!hold) {
       return res.status(404).json({ message: "Hold not found" });
     }
 
-    if (
-      hold.status === "held" &&
-      hold.expiresAt &&
-      new Date(hold.expiresAt) <= new Date()
-    ) {
-      hold.status = "expired";
-      await hold.save();
+    if (hold.status === "released") {
+      return res.status(400).json({ message: "Hold is already released" });
     }
 
-    return res.status(200).json(hold);
+    if (hold.status === "expired") {
+      return res.status(400).json({ message: "Expired hold is already inactive" });
+    }
+
+    hold.status = "released";
+    await hold.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Hold released successfully",
+      data: hold
+    });
   } catch (error) {
     next(error);
   }
@@ -198,44 +175,40 @@ export const confirmHold = async (req, res, next) => {
     await hold.save();
 
     return res.status(200).json({
+      success: true,
       message: "Hold confirmed successfully",
-      hold
+      data: hold
     });
   } catch (error) {
     next(error);
   }
 };
 
-export const releaseHold = async (req, res, next) => {
+export const getAllHolds = async (req, res, next) => {
   try {
-    const { holdId } = req.params;
+    const holds = await Hold.find().populate("roomType").sort({ createdAt: -1 });
 
-    const hold = await Hold.findById(holdId).populate("roomType");
+    return res.status(200).json({
+      success: true,
+      count: holds.length,
+      data: holds
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getHoldById = async (req, res, next) => {
+  try {
+    const hold = await Hold.findById(req.params.id).populate("roomType");
 
     if (!hold) {
       return res.status(404).json({ message: "Hold not found" });
     }
 
-    if (hold.status === "released") {
-      return res.status(400).json({ message: "Hold is already released" });
-    }
-
-    if (hold.status === "confirmed") {
-      return res.status(400).json({
-        message: "Confirmed hold cannot be released from inventory directly"
-      });
-    }
-
-    if (hold.status === "expired") {
-      return res.status(400).json({ message: "Expired hold is already inactive" });
-    }
-
-    hold.status = "released";
-    await hold.save();
-
     return res.status(200).json({
-      message: "Hold released successfully",
-      hold
+      success: true,
+      data: hold
     });
   } catch (error) {
     next(error);

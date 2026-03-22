@@ -43,6 +43,7 @@ function MyReservationsPage() {
 
   useEffect(() => {
     fetchReservations();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCancel = async (id) => {
