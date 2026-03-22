@@ -58,7 +58,7 @@ const Header = () => {
         {href : "/home", lable: "Home"},
         {href : "/guest-rooms", lable: "Rooms"},
         {href : "/home#amenities", lable: "Amenities"},
-        {href : "/view-bills", lable: "Bills"},
+        {href : "/view-bill", lable: "Bills"},
         {href : "/announcements", lable: "Announcements"},
     ]
 

@@ -72,7 +72,7 @@ function App() {
 
           {/* Routes for payments */}
           <Route path="/billing" element={<BillingPage />} />
-          <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/view-bill" element={<PaymentPage />} />
           <Route path="/book-reservation/:id" element={<BookReservationPage />} />
           <Route path="/my-reservations" element={<MyReservationsPage />} />
           <Route path="/reservations" element={<AdminReservationsPage />} />

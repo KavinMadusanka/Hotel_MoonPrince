@@ -54,3 +54,12 @@ export const removeItemFromBill = async (billingId, itemId) => {
         }
     );
 }
+
+//get user bill
+export const getUserBill = async () => {
+    return axios.get(`${BASE_URL}${API_VERSION}/payment/billing/get-bill`,
+        {
+            withCredentials: true,
+        }
+    );
+}
