@@ -170,6 +170,19 @@ function AdminSidebar() {
             <List size={16} className="text-black" />
             <span className="text-black">Manage Rooms</span>
           </NavLink>
+
+
+          <NavLink
+            to="/room-status"
+            className={({ isActive }) =>
+              `${subLinkClasses} ${
+                isActive ? "bg-[#6A0DAD]" : "hover:bg-white/5"
+              }`
+            }
+          >
+            <List size={16} className="text-black" />
+            <span className="text-black">Room Status Control</span>
+          </NavLink>
         </div>
 
         <NavLink
