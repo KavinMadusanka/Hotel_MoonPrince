@@ -19,9 +19,9 @@ const BillingPage = () => {
     const [showAddItemModal, setShowAddItemModal] = React.useState(false);
 
     const handleAddItem = async (reservation) => {
-        console.log(reservation);
+        // console.log(reservation);
         const billDetails = await getBillDetails(reservation.userId, reservation.roomId);
-        console.log("Billing Details: ", billDetails.data.data.billingItems);
+        // console.log("Billing Details: ", billDetails.data.data.billingItems);
         setBillingItems(billDetails.data.data.billingItems);
         setBillId(billDetails.data.data._id);
     };
@@ -34,15 +34,15 @@ const BillingPage = () => {
             setUser(null);
             
             const res = await getRooms();
-            console.log("Rooms Data: ", res)
+            // console.log("Rooms Data: ", res)
             const room = res.data.find(r => r.roomNumber === roomNumber);
-            console.log("Found Room: ", room);
+            // console.log("Found Room: ", room);
 
             const allReservations = await getAllReservations();
-            console.log("All Reservations: ", allReservations);
+            // console.log("All Reservations: ", allReservations);
 
             const reservation = allReservations.data.data.find(res => res.roomId === room._id && res.status === "checked_in");
-            console.log("Found Reservation: ", reservation);
+            // console.log("Found Reservation: ", reservation);
 
             if (!reservation) {
                 toast.error("There is no active reservation for this room.");
