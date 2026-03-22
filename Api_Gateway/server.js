@@ -25,7 +25,7 @@ app.use(cookieParser());
 
 // Routes
 app.use("/api/v1/userService", userRoutes);
-app.use("/api/v1/roomInventoryService", roomInventoryRoutes);
+//app.use("/api/v1/roomInventoryService", roomInventoryRoutes);
 app.use("/api/v1/guestService", guestRoutes);
 app.use("/api/v1/payment", paymentRoutes);
 app.use("/api/v1/reservations", reservationRoutes);
