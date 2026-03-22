@@ -7,7 +7,24 @@ import toast from "react-hot-toast";
 import Cookies from "js-cookie";
 import { Link, useNavigate } from "react-router-dom";
 import logo from '../../../public/Logo.png'
-import { login } from '../../apiService/APIservice';
+import { login } from '../../apiService/userService';
+
+// Function to parse JWT token
+function parseJwt(token) {
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    return JSON.parse(jsonPayload);
+  } catch {
+    return null;
+  }
+}
 
 const Signin = () => {
     const navigate = useNavigate();
@@ -43,7 +60,13 @@ const Signin = () => {
         toast.success("Login Successful");
         Cookies.set("access_token", token, { expires: 1 });
 
-        navigate("/home");
+        // get user details and redirect based on the role
+        const decoded = parseJwt(token);
+        if (Number(decoded?.role) === 2) {
+          navigate("/admin-dashboard");
+        } else {
+          navigate("/home");
+        }
       }
     } catch (error) {
       toast.error(error.response.data.message || "Server Error");

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import logo from '../../../public/Logo.png'
-import { register } from '../../apiService/APIservice.jsx'
+import { register } from '../../apiService/userService';
 
 
 const Signup = () => {
@@ -231,7 +231,7 @@ const Signup = () => {
                                     className="w-full flex mb-5 items-center justify-center gap-2 py-3 rounded-lg font-medium shadow-md text-white hover:opacity-90 disabled:opacity-60"
                                 >
                                     <UserPlus size={18} />
-                                    {isLoading ? "Signing in..." : "Sign In"}
+                                    {isLoading ? "Registering..." : "Sign Up"}
                                 </button>
                             
                         </div>

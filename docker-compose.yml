@@ -5,10 +5,13 @@ services:
     build: ./Api_Gateway
     ports:
       - "5000:5000"
+    volumes:
+      - ./Api_Gateway:/app
+      - /app/node_modules
     depends_on:
       - user_service
       - room_inventory_service
-      # - guest_service
+      - guest_service
       - payment_service
       - reservation_service
     env_file:
@@ -18,6 +21,11 @@ services:
     build: ./User_Service
     ports:
       - "8000:8000"
+    volumes:
+      - ./User_Service:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
 
   room_inventory_service:
     build: ./room_inventory_service
@@ -25,17 +33,29 @@ services:
       - "8090:8090"
     depends_on:
       - user_service
-      - reservation_service
 
-  # guest_service:
-  #   build: ./Guest_Engagement_Service
-  #   ports:
-  #     - "8081:8081"
+  guest_service:
+    build: ./Guest_Engagement_Service
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./Guest_Engagement_Service:/app
+      - /app/node_modules
+    depends_on:
+      - user_service
+      - reservation_service
+      - room_inventory_service
+      - payment_service
+    env_file:
+      - ./Guest_Engagement_Service/.env
 
   payment_service:
     build: ./Payment_Service
     ports:
       - "8050:8050"
+    volumes:
+      - ./Payment_Service:/app
+      - /app/node_modules
     depends_on:
       - user_service
 
@@ -54,6 +74,8 @@ services:
     volumes:
       - ./Frontend:/app
       - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - api_gateway
       - user_service

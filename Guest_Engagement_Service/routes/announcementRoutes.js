@@ -9,11 +9,12 @@ import { createAnnouncement,
     publishAnnouncement,
     filterAnnouncements,
     getActiveAnnouncements} from '../controllers/announcementController.js';
+import { isAdmin, requiredSignIn } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 // Create Announcement
-router.post("/", upload.single('image'), createAnnouncement);
+router.post("/", requiredSignIn, isAdmin, upload.single('image'), createAnnouncement);
 
 // Filter Announcements
 router.get("/filter", filterAnnouncements);
@@ -27,15 +28,15 @@ router.get("/:id", getAnnouncement);
 router.get("/", getAllAnnouncements);
 
 // Update Announcement
-router.put("/:id", upload.single('image'), updateAnnouncement);
+router.put("/:id", requiredSignIn, isAdmin, upload.single('image'), updateAnnouncement);
 
 // Delete Announcement
-router.delete("/:id", deleteAnnouncement);
+router.delete("/:id", requiredSignIn, isAdmin, deleteAnnouncement);
 
 // Pin Announcement
-router.put("/pin/:id", pinAnnouncement);
+router.put("/pin/:id", requiredSignIn, isAdmin, pinAnnouncement);
 
 // Publish Announcement
-router.put("/publish/:id", publishAnnouncement);
+router.put("/publish/:id", requiredSignIn, isAdmin, publishAnnouncement);
 
 export default router;

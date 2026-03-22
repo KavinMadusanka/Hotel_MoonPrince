@@ -13,15 +13,38 @@ import {
   createRoomTypeSchema,
   updateRoomTypeSchema
 } from "../validations/roomTypeValidation.js";
+import { requiredSignIn, isAdmin } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 /**
  * @swagger
- * /api/room-types:
+ * tags:
+ *   name: Room Types
+ *   description: Room type management endpoints
+ */
+
+/**
+ * @swagger
+ * /room-types:
+ *   get:
+ *     summary: Get all room types
+ *     tags: [Room Types]
+ *     responses:
+ *       200:
+ *         description: List of room types
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/RoomType'
+ *
  *   post:
  *     summary: Create a new room type
  *     tags: [Room Types]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -37,33 +60,26 @@ const router = express.Router();
  *               $ref: '#/components/schemas/RoomTypeResponse'
  *       400:
  *         description: Validation error
- *
- *   get:
- *     summary: Get all room types
- *     tags: [Room Types]
- *     responses:
- *       200:
- *         description: List of room types
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/RoomType'
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
  */
 router
   .route("/")
+  .get(getRoomTypes)
   .post(
+    requiredSignIn,
+    isAdmin,
     upload.array("images", 5),
     parseRoomTypeFormData,
     validate(createRoomTypeSchema),
     createRoomType
-  )
-  .get(getRoomTypes);
+  );
 
 /**
  * @swagger
- * /api/room-types/{id}:
+ * /room-types/{id}:
  *   get:
  *     summary: Get a room type by ID
  *     tags: [Room Types]
@@ -87,6 +103,8 @@ router
  *   patch:
  *     summary: Update a room type by ID
  *     tags: [Room Types]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -111,10 +129,16 @@ router
  *         description: Validation error
  *       404:
  *         description: Room type not found
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
  *
  *   delete:
  *     summary: Delete a room type by ID
  *     tags: [Room Types]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -131,16 +155,22 @@ router
  *               $ref: '#/components/schemas/DeleteResponse'
  *       404:
  *         description: Room type not found
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
  */
 router
   .route("/:id")
   .get(getRoomTypeById)
   .patch(
+    requiredSignIn,
+    isAdmin,
     upload.array("images", 5),
     parseRoomTypeFormData,
     validate(updateRoomTypeSchema),
     updateRoomType
   )
-  .delete(deleteRoomType);
+  .delete(requiredSignIn, isAdmin, deleteRoomType);
 
 export default router;

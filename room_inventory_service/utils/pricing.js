@@ -1,54 +1,80 @@
-// Utility functions for pricing and discounts
-export function isDiscountValid(roomType, now = new Date()) {
-  if (!roomType.discountActive) return false;
+import dayjs from "dayjs";
 
-  const from = roomType.discountValidFrom ? new Date(roomType.discountValidFrom) : null;
-  const to = roomType.discountValidTo ? new Date(roomType.discountValidTo) : null;
+export const calculateNights = (checkIn, checkOut) => {
+  const start = dayjs(checkIn).startOf("day");
+  const end = dayjs(checkOut).startOf("day");
 
-  if (from && now < from) return false;
-  if (to && now > to) return false;
-  if (!roomType.discountValue || roomType.discountValue <= 0) return false;
+  const nights = end.diff(start, "day");
+
+  if (nights <= 0) {
+    throw new Error("Check-out date must be after check-in date");
+  }
+
+  return nights;
+};
+
+export const isDiscountCurrentlyActive = (roomType) => {
+  if (!roomType?.discountActive) return false;
+
+  const now = dayjs();
+
+  const hasValidFrom = !!roomType.discountValidFrom;
+  const hasValidTo = !!roomType.discountValidTo;
+
+  if (!hasValidFrom && !hasValidTo) {
+    return true;
+  }
+
+  if (hasValidFrom && now.isBefore(dayjs(roomType.discountValidFrom))) {
+    return false;
+  }
+
+  if (hasValidTo && now.isAfter(dayjs(roomType.discountValidTo))) {
+    return false;
+  }
 
   return true;
-}
+};
 
-// Computes the final price per night for a room type, considering any active discounts
-export function computeFinalPricePerNight(roomType, now = new Date()) {
-  const base = Number(roomType.basePrice || 0);
+export const computeFinalPricePerNight = (roomType) => {
+  const basePricePerNight = Number(roomType?.basePrice || 0);
 
-  if (!isDiscountValid(roomType, now)) {
+  if (basePricePerNight < 0) {
+    throw new Error("Base price cannot be negative");
+  }
+
+  const discountApplied = isDiscountCurrentlyActive(roomType);
+
+  if (!discountApplied) {
     return {
-      basePricePerNight: base,
+      basePricePerNight,
       discountApplied: false,
       discount: null,
-      finalPricePerNight: base
+      finalPricePerNight: basePricePerNight
     };
   }
 
-  const type = roomType.discountType;
-  const value = Number(roomType.discountValue || 0);
+  const discountType = roomType.discountType || "PERCENT";
+  const discountValue = Number(roomType.discountValue || 0);
 
-  let final = base;
+  let finalPricePerNight = basePricePerNight;
 
-  if (type === "PERCENT") {
-    const pct = Math.max(0, Math.min(100, value));
-    final = base - (base * pct) / 100;
-  } else if (type === "FIXED") {
-    final = base - value;
+  if (discountType === "PERCENT") {
+    finalPricePerNight =
+      basePricePerNight - (basePricePerNight * discountValue) / 100;
+  } else if (discountType === "FIXED") {
+    finalPricePerNight = basePricePerNight - discountValue;
   }
 
-  final = Math.max(0, final);
+  finalPricePerNight = Math.max(0, Number(finalPricePerNight.toFixed(2)));
 
   return {
-    basePricePerNight: base,
+    basePricePerNight,
     discountApplied: true,
-    discount: { type, value },
-    finalPricePerNight: final
+    discount: {
+      type: discountType,
+      value: discountValue
+    },
+    finalPricePerNight
   };
-}
-
-// Helper to calculate number of nights between two dates
-export function calculateNights(checkIn, checkOut) {
-  const diffMs = new Date(checkOut) - new Date(checkIn);
-  return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-}
+};

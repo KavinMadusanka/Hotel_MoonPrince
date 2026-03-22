@@ -36,8 +36,8 @@ app.get("/", (req, res) => {
 const PORT = process.env.PORT;
 
 //routes
-app.use("/api/v1/announcements", announcementRoutes);
-app.use("/api/v1/reviews", reviewRoutes);
+app.use("/announcements", announcementRoutes);
+app.use("/reviews", reviewRoutes);
 
 app.listen(PORT, () => {
     console.log(`server running on ${process.env.DEV_MODE} mode on port ${PORT}`.bgCyan.white);
