@@ -140,3 +140,7 @@ config.bat
 #upload photos folder
 user_photos/
 
+
+# Environment variables
+.env
+
