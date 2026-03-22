@@ -26,6 +26,10 @@ import PaymentPage from './pages/PaymentPages/GuestPages/PaymentPage';
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import AdminRoute from "./routes/AdminRoute";
 import ManageRoomStatus from './pages/RoomInventory/admin/ManageRoomStatus'
+import BookReservationPage from './pages/Reservations/BookReservationPage'
+import MyReservationsPage from './pages/Reservations/MyReservationsPage'
+import AdminReservationsPage from './pages/Reservations/AdminReservationsPage'
+
 
 function App() {
 
@@ -67,7 +71,10 @@ function App() {
           {/* Routes for payments */}
           <Route path="/billing" element={<BillingPage />} />
           <Route path="/payment" element={<PaymentPage />} />
-
+          <Route path="/book-reservation/:id" element={<BookReservationPage />} />
+          <Route path="/my-reservations" element={<MyReservationsPage />} />
+          <Route path="/reservations" element={<AdminReservationsPage />} />
+          
         </Routes>
       </div>
     </>
