@@ -15,9 +15,18 @@ const generateReservationCode = () => {
 
 export const createReservation = asyncHandler(async (req, res) => {
   const {
-    userId, roomId, roomTypeId, guestName, guestEmail,
-    guestPhone, checkInDate, checkOutDate, guestsCount,
-    baseAmount, specialRequests, bookingSource
+    userId,
+    roomId,
+    roomTypeId,
+    guestName,
+    guestEmail,
+    guestPhone,
+    checkInDate,
+    checkOutDate,
+    guestsCount,
+    baseAmount,
+    specialRequests,
+    bookingSource
   } = req.body;
 
   const nights = calculateNights(checkInDate, checkOutDate);
@@ -27,13 +36,16 @@ export const createReservation = asyncHandler(async (req, res) => {
 
   const reservationCode = generateReservationCode();
 
-  // Call Inventory Service — create a real hold
   const hold = await createHold({
     reservationCode,
     roomTypeId,
     checkIn: checkInDate,
     checkOut: checkOutDate
   });
+
+  if (!hold || !hold._id) {
+    throw new ApiError(500, "Inventory service did not return a valid hold");
+  }
 
   const reservation = await Reservation.create({
     reservationCode,
@@ -64,6 +76,7 @@ export const createReservation = asyncHandler(async (req, res) => {
 
 export const getAllReservations = asyncHandler(async (req, res) => {
   const reservations = await Reservation.find().sort({ createdAt: -1 });
+
   res.status(200).json({
     success: true,
     count: reservations.length,
@@ -74,7 +87,11 @@ export const getAllReservations = asyncHandler(async (req, res) => {
 export const getReservationById = asyncHandler(async (req, res) => {
   const reservation = await Reservation.findById(req.params.id);
   if (!reservation) throw new ApiError(404, "Reservation not found");
-  res.status(200).json({ success: true, data: reservation });
+
+  res.status(200).json({
+    success: true,
+    data: reservation
+  });
 });
 
 export const getReservationsByUserId = asyncHandler(async (req, res) => {
@@ -97,7 +114,14 @@ export const updateReservation = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Cancelled or completed reservations cannot be modified");
   }
 
-  const allowedFields = ["guestName", "guestEmail", "guestPhone", "specialRequests", "notes"];
+  const allowedFields = [
+    "guestName",
+    "guestEmail",
+    "guestPhone",
+    "specialRequests",
+    "notes"
+  ];
+
   for (const field of allowedFields) {
     if (req.body[field] !== undefined) {
       reservation[field] = req.body[field];
@@ -105,6 +129,7 @@ export const updateReservation = asyncHandler(async (req, res) => {
   }
 
   await reservation.save();
+
   res.status(200).json({
     success: true,
     message: "Reservation updated successfully",
@@ -141,6 +166,7 @@ export const cancelReservation = asyncHandler(async (req, res) => {
   if (reservation.status === "cancelled") {
     throw new ApiError(400, "Reservation is already cancelled");
   }
+
   if (reservation.status === "completed") {
     throw new ApiError(400, "Completed reservation cannot be cancelled");
   }
@@ -149,8 +175,10 @@ export const cancelReservation = asyncHandler(async (req, res) => {
 
   reservation.status = "cancelled";
   reservation.cancelledAt = new Date();
-  reservation.cancellationReason = req.body?.cancellationReason || "Cancelled by guest/user";
+  reservation.cancellationReason =
+    req.body?.cancellationReason || "Cancelled by guest/user";
   reservation.paymentStatus = "not_applicable";
+
   await reservation.save();
 
   res.status(200).json({

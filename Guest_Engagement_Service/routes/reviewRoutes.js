@@ -6,11 +6,12 @@ import { createReview,
     deleteReview,
     pinReview,
     getReviewsByUser} from '../controllers/reviewController.js';
+import { isAdmin, requiredSignIn } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 // Create Review
-router.post("/", createReview);
+router.post("/", requiredSignIn, createReview);
 
 // Get Reviews by Room ID
 router.get("/room/:roomId", getReviewsByRoomId);
@@ -22,13 +23,13 @@ router.get("/user/:userId", getReviewsByUser);
 router.get("/:id", getSingleReview);
 
 // Update Review
-router.put("/:id", updateReview);
+router.put("/:id", requiredSignIn, updateReview);
 
 // Pin Review
-router.put("/pin/:id", pinReview);
+router.put("/pin/:id", requiredSignIn, isAdmin, pinReview);
 
 // Delete Review
-router.delete("/:id", deleteReview);
+router.delete("/:id", requiredSignIn, deleteReview);
 
 
 

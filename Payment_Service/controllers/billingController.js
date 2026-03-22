@@ -14,7 +14,8 @@ export const createBilling = async (req, res) => {
 
         res.status(201).json({
             success: true,
-            message: "Billing created successfully"
+            message: "Billing created successfully",
+            data: newBilling
         });
 
         await newBilling.save();
@@ -65,6 +66,7 @@ export const addBillingItem = async (req, res) => {
   try {
     const { billingId } = req.params;
     const item = req.body;
+    console.log("Item to add:", item);
 
     const updatedBilling = await billing.findByIdAndUpdate(
       billingId,

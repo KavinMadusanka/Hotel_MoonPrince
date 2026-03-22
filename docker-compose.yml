@@ -63,6 +63,8 @@ services:
     build: ./Reservation_Service
     ports:
       - "8060:8060"
+    env_file:
+    - ./Reservation_Service/.env
     depends_on:
       - user_service
       - room_inventory_service

@@ -5,12 +5,26 @@ import toast from 'react-hot-toast';
 import { getRooms } from '../../../apiService/roomService';
 import { getAllReservations, getBillDetails } from '../../../apiService/PaymentService';
 import { getUserDetailsById } from '../../../apiService/userService';
+import AddBillingItemModal from './AddBillingItemModal';
+import AddBillItemToBillModal from './AddBillItemToBillModel';
 
 const BillingPage = () => {
     const [roomNumber, setRoomNumber] = React.useState("");
     const [billingItems, setBillingItems] = React.useState([]);
     const [reservation, setReservation] = React.useState(null);
     const [user, setUser] = React.useState(null);
+    const [billId, setBillId] = React.useState(null);
+
+    const [showModal, setShowModal] = React.useState(false);
+    const [showAddItemModal, setShowAddItemModal] = React.useState(false);
+
+    const handleAddItem = async (reservation) => {
+        // console.log(reservation);
+        const billDetails = await getBillDetails(reservation.userId, reservation.roomId);
+        // console.log("Billing Details: ", billDetails.data.data.billingItems);
+        setBillingItems(billDetails.data.data.billingItems);
+        setBillId(billDetails.data.data._id);
+    };
 
 
     const getBillingDetails = async (roomNumber) => {
@@ -28,7 +42,7 @@ const BillingPage = () => {
             // console.log("All Reservations: ", allReservations);
 
             const reservation = allReservations.data.data.find(res => res.roomId === room._id && res.status === "checked_in");
-            console.log("Found Reservation: ", reservation);
+            // console.log("Found Reservation: ", reservation);
 
             if (!reservation) {
                 toast.error("There is no active reservation for this room.");
@@ -36,12 +50,13 @@ const BillingPage = () => {
             }
             setReservation(reservation);
             const userDetails = await getUserDetailsById(reservation.userId);
-            console.log("User Details: ", userDetails);
+            // console.log("User Details: ", userDetails);
             setUser(userDetails.data.user);
-
-            const billDetails = await getBillDetails(reservation.userId, reservation.roomId);
-            console.log("Billing Details: ", billDetails.data.data.billingItems);
-            setBillingItems(billDetails.data.data.billingItems);
+            handleAddItem(reservation);
+            // const billDetails = await getBillDetails(reservation.userId, reservation.roomId);
+            // console.log("Billing Details: ", billDetails.data.data.billingItems);
+            // setBillingItems(billDetails.data.data.billingItems);
+            // setBillId(billDetails.data.data._id);
 
 
         } catch (error) {
@@ -57,11 +72,18 @@ const BillingPage = () => {
   return (
     <AdminPageLayout>
         <div className='relative min-h-screen w-full md:px-10 px-3 pb-10 '>
-            <div>
+            <div className='relative flex flex-row justify-between'>
                 <p className='text-black 
                     text-3xl md:text-4xl lg-text-5xl font-bold tracking-wide mb-10'>
                     Create New Bill
                 </p>
+                <button
+                    onClick={() => setShowModal(true)}
+                    className='text-white font-bold tracking-wider flex flex-row items-center gap-3 mb-5'
+                >
+                    <PlusCircle size={20} className="text-white" />
+                    Add New item types
+                </button>
             </div>
         <section className='w-full flex flex-row'>
 
@@ -118,7 +140,9 @@ const BillingPage = () => {
                             </p>
                         </div>
                         <div className='relative flex flex-row w-1/2 gap-5 items-center mb-4 justify-end'>
-                            <button className='text-white font-bold tracking-wider flex flex-row items-center gap-3'>
+                            <button
+                            onClick={() => setShowAddItemModal(true)} 
+                            className='text-white font-bold tracking-wider flex flex-row items-center gap-3'>
                                 <PlusCircle size={20} className="text-white" />
                                 Add New Item
                             </button>
@@ -198,6 +222,18 @@ const BillingPage = () => {
                 Selected works that demonstrate technical depth and design precision.
             </p>
         </div>
+        <AddBillingItemModal
+            isOpen={showModal}
+            onClose={() => setShowModal(false)}
+            onAdd={handleAddItem}
+        />
+        <AddBillItemToBillModal
+            isOpen={showAddItemModal}
+            onClose={() => setShowAddItemModal(false)}
+            onAdd={handleAddItem}
+            billId={billId}
+            reservation={reservation}
+        />
     </div>
     </AdminPageLayout>
   )
