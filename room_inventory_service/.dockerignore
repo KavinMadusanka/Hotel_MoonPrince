@@ -1,0 +1,18 @@
+# Environment files - never bake secrets into the image
+.env
+.env.*
+
+# Dependencies - reinstalled during build anyway
+node_modules
+
+# Logs
+*.log
+npm-debug.log*
+
+# Git files
+.git
+.gitignore
+
+# Docker files themselves
+.dockerignore
+Dockerfile
