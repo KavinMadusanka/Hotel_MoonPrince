@@ -1,9 +1,14 @@
-FROM node:alpine
+FROM node:20-alpine
+
 WORKDIR /app
+
 COPY ["package.json", "package-lock.json*", "./"]
+
 # RUN npm install --production
 RUN npm ci --omit=dev
+
 COPY . .
-RUN npm install -g nodemon
+
 EXPOSE 8080
-CMD ["npm", "run", "dev"]
+
+CMD ["node", "server.js"]

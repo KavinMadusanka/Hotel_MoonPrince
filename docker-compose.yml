@@ -37,7 +37,7 @@ services:
   guest_service:
     build: ./Guest_Engagement_Service
     ports:
-      - "8080:8080"
+      - "8070:8070"
     volumes:
       - ./Guest_Engagement_Service:/app
       - /app/node_modules
@@ -72,7 +72,7 @@ services:
   frontend:
     build: ./Frontend
     ports:
-      - "5173:5173"
+      - "5173:80"
     volumes:
       - ./Frontend:/app
       - /app/node_modules

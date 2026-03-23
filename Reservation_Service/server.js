@@ -21,7 +21,7 @@ app.use(helmet());
 
 // Explicit CORS config — never use cors() with no args when credentials are involved
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: ['http://localhost:5173', 'https://frontend-861717114034.asia-southeast1.run.app'],
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]

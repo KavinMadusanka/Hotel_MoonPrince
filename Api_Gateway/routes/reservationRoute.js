@@ -6,7 +6,7 @@ const router = express.Router();
 router.use(
   "/",
   createProxyMiddleware({
-    target: process.env.RESERVATION_SERVICE,
+    target: process.env.RESERVATION_SERVICE || "https://reservation-service-861717114034.asia-southeast1.run.app",
     changeOrigin: true,
     pathRewrite: (path) => `/api/v1/reservations${path === "/" ? "" : path}`,
     on: {
