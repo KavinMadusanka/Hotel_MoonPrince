@@ -55,15 +55,15 @@ const BillingPage = () => {
             setUser(null);
             
             const res = await getRooms();
-            // console.log("Rooms Data: ", res)
+            console.log("Rooms Data: ", res)
             const room = res.data.find(r => r.roomNumber === roomNumber);
-            // console.log("Found Room: ", room);
+            console.log("Found Room: ", room);
 
             const allReservations = await getAllReservations();
-            // console.log("All Reservations: ", allReservations);
+            console.log("All Reservations: ", allReservations);
 
             const reservation = allReservations.data.data.find(res => res.roomId === room._id && res.status === "checked_in");
-            // console.log("Found Reservation: ", reservation);
+            console.log("Found Reservation: ", reservation);
 
             if (!reservation) {
                 toast.error("There is no active reservation for this room.");
@@ -71,7 +71,7 @@ const BillingPage = () => {
             }
             setReservation(reservation);
             const userDetails = await getUserDetailsById(reservation.userId);
-            // console.log("User Details: ", userDetails);
+            console.log("User Details: ", userDetails);
             setUser(userDetails.data.user);
             handleAddItem(reservation);
 

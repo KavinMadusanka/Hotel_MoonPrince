@@ -23,7 +23,7 @@ const Header = () => {
         const fetchUserProfile = async () => {
             try {
                 const res = await getUserDetails();
-                console.log(res)
+                // console.log(res)
                 if (res.data.success) {
                     setUser(res.data.user);
                 } else {
@@ -40,9 +40,10 @@ const Header = () => {
         try {
             const res = await logout();
             if (res.data.success) {
-
+                console.log("first")
                 toast.success(res.data.message);
                 localStorage.removeItem('auth');
+                localStorage.removeItem('token');
                 Cookies.remove('access_token');
                 setAuth({ token: "" });
                 navigate('/home');

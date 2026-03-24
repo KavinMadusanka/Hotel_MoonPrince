@@ -14,7 +14,7 @@ dotenv.config();
 
 const app = express();
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 
 app.use(cors({
   origin: ['http://localhost:5173', 'https://frontend-861717114034.asia-southeast1.run.app'],
@@ -25,12 +25,12 @@ app.use(cookieParser());
 app.use(morgan("dev"));
 
 // Routes
-app.use("/api/v1/userService", userRoutes);
 app.use("/api/v1/guestService", guestRoutes);
-app.use("/api/v1/payment", paymentRoutes);
 app.use("/api/v1/reservations", reservationRoutes);
 
 app.use(express.json());
+app.use("/api/v1/userService", userRoutes);
+app.use("/api/v1/payment", paymentRoutes);
 app.use("/api/v1/roomInventoryService", roomInventoryRoutes);
 
 // console.log("USER_SERVICE:", process.env.USER_SERVICE);

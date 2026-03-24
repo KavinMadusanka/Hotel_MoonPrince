@@ -3,18 +3,33 @@ import axios from "axios";
 const BASE_URL = import.meta.env.VITE_USER_SERVICE_URL;
 const API_VERSION = import.meta.env.VITE_API_VERSION;
 
+const token = localStorage.getItem("token");
+
 export const getResercevationDetails = async (userId) => {
-    return axios.get(`${BASE_URL}${API_VERSION}/reservations/api/v1/reservations/user/${userId}`);
+    return axios.get(`${BASE_URL}${API_VERSION}/reservations/api/v1/reservations/user/${userId}`, {
+        withCredentials: true,
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
 }
 
 export const getAllReservations = async () => {
-    return axios.get(`${BASE_URL}${API_VERSION}/reservations/`);
+    return axios.get(`${BASE_URL}${API_VERSION}/reservations/`, {
+        withCredentials: true,
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
 }
 
 export const getBillDetails = async (userId, roomId) => {
     return axios.get(`${BASE_URL}${API_VERSION}/payment/billing/get-billing/${userId}/${roomId}`,
         {
             withCredentials: true,
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         }
     );
 }
@@ -23,6 +38,9 @@ export const getBillDetails = async (userId, roomId) => {
 export const addBillingItemType = async (itemData) => {
     return axios.post(`${BASE_URL}${API_VERSION}/payment/items/create-billing`, itemData, {
         withCredentials: true,
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
     });
 }
 
@@ -30,6 +48,9 @@ export const addBillingItemType = async (itemData) => {
 export const getBillingItems = async () => {
     return axios.get(`${BASE_URL}${API_VERSION}/payment/items/billing-items`, {
         withCredentials: true,
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
     });
 }
 
@@ -41,6 +62,9 @@ export const addBillToReservation = async (billingId, itemData) => {
         itemData, 
         {
             withCredentials: true,
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
     });
 }
 
@@ -51,6 +75,9 @@ export const removeItemFromBill = async (billingId, itemId) => {
     return axios.delete(`${BASE_URL}${API_VERSION}/payment/billing/remove-item/${billingId}/${itemId}`,
         {
             withCredentials: true,
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         }
     );
 }
@@ -60,6 +87,9 @@ export const getUserBill = async () => {
     return axios.get(`${BASE_URL}${API_VERSION}/payment/billing/get-bill`,
         {
             withCredentials: true,
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         }
     );
 }
