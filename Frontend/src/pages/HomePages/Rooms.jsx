@@ -1,6 +1,21 @@
-import React from 'react'
+// import React, { useEffect } from 'react'
+// import { getRooms } from '../../apiService/roomService';
 
 const Rooms = () => {
+
+  // useEffect(() => {
+  //   const fetchRooms = async () => {
+  //     try {
+  //       const res = await getRooms();
+  //       console.log(res);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+
+  //   fetchRooms();
+  // }, []);
+
   return (
     <div id="Rooms" className='bg-white min-h-screen justify-center items-center flex flex-col gap-5 py-20 px-5'>
         <span className='text-3xl md:text-4xl lg:text-5xl font-bold text-purple-800 tracking-widest text-center

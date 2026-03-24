@@ -5,6 +5,8 @@ const API_VERSION = import.meta.env.VITE_API_VERSION;
 
 const ROOM_INVENTORY_BASE = `${USER_SERVICE_URL}${API_VERSION}/roomInventoryService`;
 
+const token = localStorage.getItem("token");
+
 export const getRoomTypes = async () => {
   return axios.get(`${ROOM_INVENTORY_BASE}/room-types`, {
     withCredentials: true,
@@ -57,6 +59,9 @@ export const createRoom = async (payload) => {
 export const getRooms = async () => {
   return axios.get(`${ROOM_INVENTORY_BASE}/rooms`, {
     withCredentials: true,
+    headers: {
+        Authorization: `Bearer ${token}`
+    }
   });
 };
 

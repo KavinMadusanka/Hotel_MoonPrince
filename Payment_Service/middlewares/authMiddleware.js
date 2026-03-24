@@ -3,7 +3,15 @@ import JWT from 'jsonwebtoken';
 //check user is authenticated or not
 export const requiredSignIn = async (req, res, next) => {
     try {
-        const token = req.cookies.access_token;
+        let token = req.cookies.access_token;
+
+        if (!token) {
+            const authHeader = req.headers.authorization;
+            if (authHeader && authHeader.startsWith("Bearer ")) {
+                token = authHeader.split(" ")[1];
+            }
+        }
+
         if(!token){
             return res.status(401).json({
                 success: false,
