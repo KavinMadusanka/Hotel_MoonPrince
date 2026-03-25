@@ -4,6 +4,7 @@ import {
   BedDouble,
   DoorOpen,
   CalendarClock,
+  MessageSquare,
   PlusCircle,
   List,
   Megaphone,
@@ -98,8 +99,12 @@ function AdminSidebar() {
             }`
           }
         >
-          <LayoutDashboard size={18} className="text-black" />
-          <span className="text-black">Dashboard</span>
+          {({ isActive }) => (
+            <>
+              <LayoutDashboard size={18} className={isActive ? "text-white" : "text-black"} />
+              <span className={isActive ? "text-white" : "text-black"}>Dashboard</span>
+            </>
+          )}
         </NavLink>
 
         <div className="space-y-2">
@@ -120,8 +125,12 @@ function AdminSidebar() {
               }`
             }
           >
-            <PlusCircle size={16} className="text-black" />
-            <span className="text-black">Add Room Type</span>
+            {({ isActive }) => (
+              <>
+                <PlusCircle size={16} className={isActive ? "text-white" : "text-black"} />
+                <span className={isActive ? "text-white" : "text-black"}>Add Room Type</span>
+              </>
+            )}
           </NavLink>
 
           <NavLink
@@ -132,8 +141,12 @@ function AdminSidebar() {
               }`
             }
           >
-            <List size={16} className="text-black" />
-            <span className="text-black">Manage Room Types</span>
+            {({ isActive }) => (
+              <>
+                <List size={16} className={isActive ? "text-white" : "text-black"} />
+                <span className={isActive ? "text-white" : "text-black"}>Manage Room Types</span>
+              </>
+            )}
           </NavLink>
         </div>
 
@@ -155,8 +168,12 @@ function AdminSidebar() {
               }`
             }
           >
-            <PlusCircle size={16} className="text-black" />
-            <span className="text-black">Add Room</span>
+            {({ isActive }) => (
+              <>
+                <PlusCircle size={16} className={isActive ? "text-white" : "text-black"} />
+                <span className={isActive ? "text-white" : "text-black"}>Add Room</span>
+              </>
+            )}
           </NavLink>
 
           <NavLink
@@ -167,8 +184,12 @@ function AdminSidebar() {
               }`
             }
           >
-            <List size={16} className="text-black" />
-            <span className="text-black">Manage Rooms</span>
+            {({ isActive }) => (
+              <>
+                <List size={16} className={isActive ? "text-white" : "text-black"} />
+                <span className={isActive ? "text-white" : "text-black"}>Manage Rooms</span>
+              </>
+            )}
           </NavLink>
 
 
@@ -180,8 +201,12 @@ function AdminSidebar() {
               }`
             }
           >
-            <List size={16} className="text-black" />
-            <span className="text-black">Room Status Control</span>
+            {({ isActive }) => (
+              <>
+                <List size={16} className={isActive ? "text-white" : "text-black"} />
+                <span className={isActive ? "text-white" : "text-black"}>Room Status Control</span>
+              </>
+            )}
           </NavLink>
         </div>
 
@@ -193,8 +218,12 @@ function AdminSidebar() {
             }`
           }
         >
-          <Archive size={18} className="text-black" />
-          <span className="text-black">Manage Holds</span>
+          {({ isActive }) => (
+            <>
+              <Archive size={18} className={isActive ? "text-white" : "text-black"} />
+              <span className={isActive ? "text-white" : "text-black"}>Manage Holds</span>
+            </>
+          )}
         </NavLink>
 
         <NavLink
@@ -205,8 +234,12 @@ function AdminSidebar() {
             }`
           }
         >
-          <CalendarClock size={18} className="text-black" />
-          <span className="text-black">Reservations</span>
+          {({ isActive }) => (
+            <>
+              <CalendarClock size={18} className={isActive ? "text-white" : "text-black"} />
+              <span className={isActive ? "text-white" : "text-black"}>Reservations</span>
+            </>
+          )}
         </NavLink>
 
         <div className="space-y-2">
@@ -227,8 +260,12 @@ function AdminSidebar() {
               }`
             }
           >
-            <PlusCircle size={16} className="text-black" />
-            <span className="text-black">Add Announcement</span>
+            {({ isActive }) => (
+              <>
+                <PlusCircle size={16} className={isActive ? "text-white" : "text-black"} />
+                <span className={isActive ? "text-white" : "text-black"}>Add Announcement</span>
+              </>
+            )}
           </NavLink>
 
           <NavLink
@@ -239,8 +276,12 @@ function AdminSidebar() {
               }`
             }
           >
-            <List size={16} className="text-black" />
-            <span className="text-black">All Announcements</span>
+            {({ isActive }) => (
+              <>
+                <List size={16} className={isActive ? "text-white" : "text-black"} />
+                <span className={isActive ? "text-white" : "text-black"}>All Announcements</span>
+              </>
+            )}
           </NavLink>
         </div>
 
@@ -262,8 +303,12 @@ function AdminSidebar() {
               }`
             }
           >
-            <PlusCircle size={16} className="text-black" />
-            <span className="text-black">Add Bills</span>
+            {({ isActive }) => (
+              <>
+                <PlusCircle size={16} className={isActive ? "text-white" : "text-black"} />
+                <span className={isActive ? "text-white" : "text-black"}>Add Bills</span>
+              </>
+            )}
           </NavLink>
 
           <NavLink
@@ -274,9 +319,29 @@ function AdminSidebar() {
               }`
             }
           >
-            <Receipt size={16} className="text-black" />
-            <span className="text-black">All Payments</span>
+            {({ isActive }) => (
+              <>
+                <Receipt size={16} className={isActive ? "text-white" : "text-black"} />
+                <span className={isActive ? "text-white" : "text-black"}>All Payments</span>
+              </>
+            )}
           </NavLink>
+
+          <NavLink
+          to="/manage-room-type-reviews"
+          className={({ isActive }) =>
+            `${mainLinkClasses} ${
+              isActive ? "bg-[#6A0DAD]" : "hover:bg-white/5"
+            }`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              <MessageSquare size={18} className={isActive ? "text-white" : "text-black"} />
+              <span className={isActive ? "text-white" : "text-black"}>Manage Reviews</span>
+            </>
+          )}
+        </NavLink>
         </div>
       </nav>
 

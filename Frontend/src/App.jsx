@@ -12,6 +12,7 @@ import AllAnnouncements from './pages/GuestEngagement/admin/AllAnnouncements'
 import EditAnnouncement from './pages/GuestEngagement/admin/EditAnnouncement'
 import GiveReviewPage from './pages/GuestEngagement/guest/GiveReviewPage'
 import MyReviewsPage from './pages/GuestEngagement/guest/MyReviewsPage'
+import ManageRoomTypeReviews from './pages/GuestEngagement/admin/ManageRoomTypeReviews'
 import ForgetPassword from './pages/SigninSignupPages/ForgetPassword'
 import EmailVerification from './pages/SigninSignupPages/EmailVerification'
 import ResetPassword from './pages/SigninSignupPages/ResetPassword'
@@ -71,6 +72,7 @@ function App() {
           <Route path="/add-announcement" element={<AddAnnouncements />} />
           <Route path="/all-announcements" element={<AllAnnouncements />} />
           <Route path="/edit-announcement/:id" element={<EditAnnouncement />} />
+          <Route path="/manage-room-type-reviews" element={<ManageRoomTypeReviews />} />
 
           {/* Routes for payments */}
           <Route path="/billing" element={<BillingPage />} />
