@@ -11,6 +11,7 @@ import AddAnnouncements from './pages/GuestEngagement/admin/AddAnnouncement'
 import AllAnnouncements from './pages/GuestEngagement/admin/AllAnnouncements'
 import EditAnnouncement from './pages/GuestEngagement/admin/EditAnnouncement'
 import GiveReviewPage from './pages/GuestEngagement/guest/GiveReviewPage'
+import MyReviewsPage from './pages/GuestEngagement/guest/MyReviewsPage'
 import ForgetPassword from './pages/SigninSignupPages/ForgetPassword'
 import EmailVerification from './pages/SigninSignupPages/EmailVerification'
 import ResetPassword from './pages/SigninSignupPages/ResetPassword'
@@ -65,6 +66,7 @@ function App() {
           {/* guest */}
           <Route path="/announcements" element={<Announcements />} />
           <Route path="/give-review/:bookingid" element={<GiveReviewPage />} />
+          <Route path="/my-reviews" element={<MyReviewsPage />} />
           {/* admin */}
           <Route path="/add-announcement" element={<AddAnnouncements />} />
           <Route path="/all-announcements" element={<AllAnnouncements />} />

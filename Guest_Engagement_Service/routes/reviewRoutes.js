@@ -13,11 +13,12 @@ const router = express.Router();
 // Create Review
 router.post("/", requiredSignIn, createReview);
 
-// Get Reviews by Room ID
-router.get("/room/:roomId", getReviewsByRoomId);
+// Get Reviews by Room Type ID
+router.get("/room/:roomTypeId", getReviewsByRoomId);
 
-// Get Reviews by User ID
-router.get("/user/:userId", getReviewsByUser);
+// Get Reviews by User ID (protected). Provide either `/reviews/user` (uses token) or `/reviews/user/:userId`.
+router.get("/user/:userId", requiredSignIn, getReviewsByUser);
+router.get("/user", requiredSignIn, getReviewsByUser);
 
 // Get Single Review
 router.get("/:id", getSingleReview);
