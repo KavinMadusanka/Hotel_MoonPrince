@@ -296,3 +296,36 @@ export const getReviewsByUser = async (req, res) => {
         });
     }
 };
+
+// Unpin review
+export const unpinReview = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const review = await Review.findById(id);
+
+        if (!review) {
+            return res.status(404).json({
+                message: "Review not found"
+            });
+        }
+
+        const updated = await Review.findByIdAndUpdate(
+            id,
+            { isPinned: false },
+            { new: true }
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "Review unpinned successfully",
+            data: updated
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};

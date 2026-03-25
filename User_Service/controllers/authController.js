@@ -157,7 +157,7 @@ export const getUserNameDpById = async(req, res) => {
         const id = req.params.id;
         
         // const id = req.headers["user-id"];
-        const existingUser = await user.findById(id).select("-password", "-email", "-contactNumber", "-role", "-createdAt", "-updatedAt","-resetOtpHash","-resetOtpExpires");
+        const existingUser = await user.findById(id).select("-password -email -contactNumber -role -createdAt -updatedAt -resetOtpHash -resetOtpExpires");
         if(!existingUser){
             return res.status(400).json({
                 success: false,
