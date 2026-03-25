@@ -90,7 +90,7 @@ const router = express.Router();
 router
   .route("/")
   .post(requiredSignIn, isAdmin, validate(createRoomSchema), createRoom)
-  .get(requiredSignIn, getRooms);
+  .get( getRooms);
 
 /**
  * @swagger

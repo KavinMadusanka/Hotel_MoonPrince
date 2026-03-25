@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Layout from '../../../layouts/Layout';
 import { CreditCard, Download } from 'lucide-react';
 import { getUserBill } from '../../../apiService/PaymentService';
@@ -14,7 +14,8 @@ const PaymentPage = () => {
     additionalServicesFee: 0,
   });
   const [user, setUser] = React.useState(null);
-  const [billDetails, setBillDetails] = React.useState(null);
+  const [billDetails, setBillDetails] = React.useState([]);
+  const [loading, setLoading] = useState(true);
 
   const calculateBillSummary = (data) => {
     if (!Array.isArray(data) || data.length === 0) {
@@ -60,15 +61,26 @@ const PaymentPage = () => {
 useEffect(() => {
     const fetchBill = async () => {
       try {
+        setLoading(true);
+
         const userDetails = await getUserDetails();
         // console.log("User: ", userDetails.data.user);
         setUser(userDetails.data.user);
+
         const res = await getUserBill();
-        console.log(res.data.data);
-        setBillDetails(res.data.data);
-        setBill(calculateBillSummary(res.data.data));
+        // console.log(res.data.data);
+        
+        if (res.data.data.length > 0) {
+          setBillDetails(res.data.data);
+          setBill(calculateBillSummary(res.data.data));
+        }
+
       } catch (error) {
         console.log(error);
+        setBillDetails([]);
+
+      } finally {
+        setLoading(false);
       }
     };
     fetchBill();
@@ -78,7 +90,7 @@ useEffect(() => {
   // console.log("Bill Details",billDetails);
   const allBillingItems = billDetails?.flatMap((bill) => bill.billingItems || []) || [];
 
-  
+
   return (
     <Layout>
         <div className="max-w-6xl mx-auto p-6 mt-20 space-y-6">
@@ -133,56 +145,87 @@ useEffect(() => {
           </div>
 
           {/* DETAILS */}
-          <div className="grid grid-cols-3 gap-6 bg-gray-50 p-6 text-sm">
-            <div>
-              <p className="text-gray-400">GUEST NAME</p>
-              <p className="font-medium text-black">{user?.name || "Guest"}</p>
-            </div>
+          
+            {loading ? (
+              <div className="col-span-3 flex flex-col items-center justify-center py-10">
+                <div className="w-6 h-6 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-gray-500 mt-3">Loading billing details...</p>
+              </div>
+            ) :  (
+              <>
+                <div className="grid grid-cols-3 gap-6 bg-gray-50 p-6 text-sm">
+                  <div>
+                    <p className="text-gray-400">GUEST NAME</p>
+                    <p className="font-medium text-black">{user?.name || "Guest"}</p>
+                  </div>
 
-            <div>
-              <p className="text-gray-400">ROOM DETAILS</p>
-              {/* <p className="font-medium text-black">{invoice.room}</p> */}
-            </div>
+                  <div>
+                    <p className="text-gray-400">ROOM DETAILS</p>
+                    {allBillingItems.filter((item) => item.ItemType === "Accommodation").length === 0 ? (
+                      <p className="text-sm text-gray-400">No rooms booked</p>
+                    ) : (
+                      allBillingItems
+                        .filter((item) => item.ItemType === "Accommodation")
+                        .map((item, index) => (
+                          <div key={index} className="border-b py-2">
+                            <p className="text-xs font-medium text-black">
+                              {item.Description}
+                            </p>
+                            <p className="text-xs text-gray-400">Qty: {item.QTY}</p>
+                          </div>
+                        ))
+                    )}
+                  </div>
 
-            <div>
-              <p className="text-gray-400">ISSUE DATE</p>
-              {/* <p className="font-medium text-black">{invoice.date}</p> */}
-            </div>
-          </div>
+                  <div>
+                    <p className="text-gray-400">ISSUE DATE</p>
+                    {/* <p className="font-medium text-black">{invoice.date}</p> */}
+                  </div>
+                </div>
 
-          {/* TABLE */}
-          <div className="p-6">
-            <table className="w-full text-sm">
-              <thead className="text-gray-400 border-b">
-                <tr>
-                  <th className="text-left pb-2">DESCRIPTION</th>
-                  <th>QTY</th>
-                  <th>UNIT PRICE</th>
-                  <th className="text-right">SUBTOTAL</th>
-                </tr>
-              </thead>
+                <div className="p-6">
+                  {billDetails.length === 0 ? (
+                    <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+                      <h2 className="text-xl font-semibold text-gray-700">No Billing Records</h2>
+                      <p className="text-gray-500 mt-2">
+                        You do not have any bills to pay.
+                      </p>
+                    </div>
+                  ) : (
+                    <table className="w-full text-sm">
+                      <thead className="text-gray-400 border-b">
+                        <tr>
+                          <th className="text-left pb-2">DESCRIPTION</th>
+                          <th>QTY</th>
+                          <th>UNIT PRICE</th>
+                          <th className="text-right">SUBTOTAL</th>
+                        </tr>
+                      </thead>
 
-              <tbody>
-                {allBillingItems.map((item, index) => {
-                  const sub = item.QTY * item.UnitPrice;
+                      <tbody>
+                        {allBillingItems.map((item, index) => {
+                          const sub = item.QTY * item.UnitPrice;
 
-                  return (
-                    <tr key={index} className="border-b text-black">
-                      <td className="py-4">
-                        <p className="font-medium">{item.ItemType}</p>
-                        <p className="text-xs text-gray-400">{item.Description}</p>
-                      </td>
-                      <td className="text-center">{item.QTY}</td>
-                      <td className="text-center">LKR {item.UnitPrice}</td>
-                      <td className="text-right font-medium">
-                        LKR {sub.toLocaleString()}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                          return (
+                            <tr key={index} className="border-b text-black">
+                              <td className="py-4">
+                                <p className="font-medium">{item.ItemType}</p>
+                                <p className="text-xs text-gray-400">{item.Description}</p>
+                              </td>
+                              <td className="text-center">{item.QTY}</td>
+                              <td className="text-center">LKR {item.UnitPrice.toLocaleString()}</td>
+                              <td className="text-right font-medium">
+                                LKR {sub.toLocaleString()}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </>
+            )}
 
           {/* SUMMARY */}
           <div className="flex justify-between p-6 gap-6">
@@ -242,8 +285,13 @@ useEffect(() => {
               </div>
 
               <button className="w-full mt-4 bg-purple-700 text-white py-3 rounded-xl hover:bg-purple-800 flex flex-row gap-3 justify-center items-center">
-                <p>
-                  Pay Total LKR
+                <p className="relative flex flex-row gap-10">
+                  <p>
+                    Pay Total 
+                  </p>
+                  <p>
+                    LKR
+                  </p>
                 </p>
                 <p>
                   {bill.total.toLocaleString()}

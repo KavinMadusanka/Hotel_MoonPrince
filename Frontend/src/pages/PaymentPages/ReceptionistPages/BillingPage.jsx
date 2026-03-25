@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import AdminPageLayout from '../../../layouts/AdminPageLayout';
-import { ClipboardList, PlusCircle, Printer, Trash, UserSearch } from 'lucide-react';
+import { ClipboardList, PlusCircle, Printer, Receipt, Trash, UserSearch } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getRooms } from '../../../apiService/roomService';
 import { getAllReservations, getBillDetails, removeItemFromBill } from '../../../apiService/PaymentService';
@@ -9,14 +9,15 @@ import AddBillingItemModal from './AddBillingItemModal';
 import AddBillItemToBillModal from './AddBillItemToBillModel';
 
 const BillingPage = () => {
-    const [roomNumber, setRoomNumber] = React.useState("");
-    const [billingItems, setBillingItems] = React.useState([]);
-    const [reservation, setReservation] = React.useState(null);
-    const [user, setUser] = React.useState(null);
-    const [bill, setBill] = React.useState(null);
+    const [roomNumber, setRoomNumber] = useState("");
+    const [billingItems, setBillingItems] = useState([]);
+    const [reservation, setReservation] = useState(null);
+    const [user, setUser] = useState(null);
+    const [bill, setBill] = useState(null);
 
-    const [showModal, setShowModal] = React.useState(false);
-    const [showAddItemModal, setShowAddItemModal] = React.useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [showAddItemModal, setShowAddItemModal] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const roomCharges = billingItems
         .filter(item => item.ItemType === "Accommodation")
@@ -40,43 +41,48 @@ const BillingPage = () => {
     const total = subTotal + tax;
 
     const handleAddItem = async (reservation) => {
+        setLoading(true);
         // console.log(reservation);
         const billDetails = await getBillDetails(reservation.userId, reservation.roomId);
         // console.log("Billing Details: ", billDetails.data.data.billingItems);
         setBillingItems(billDetails.data.data.billingItems);
         setBill(billDetails.data.data);
+        setLoading(false);
     };
 
 
     const getBillingDetails = async (roomNumber) => {
         try {
+            setLoading(true);
             setReservation(null);
             setBillingItems([]);
             setUser(null);
             
             const res = await getRooms();
-            console.log("Rooms Data: ", res)
+            // console.log("Rooms Data: ", res)
             const room = res.data.find(r => r.roomNumber === roomNumber);
-            console.log("Found Room: ", room);
+            // console.log("Found Room: ", room);
 
             const allReservations = await getAllReservations();
-            console.log("All Reservations: ", allReservations);
+            // console.log("All Reservations: ", allReservations);
 
             const reservation = allReservations.data.data.find(res => res.roomId === room._id && res.status === "checked_in");
-            console.log("Found Reservation: ", reservation);
+            // console.log("Found Reservation: ", reservation);
 
             if (!reservation) {
-                toast.error("There is no active reservation for this room.");
+                // toast.error("There is no active reservation for this room.");
                 return;
             }
             setReservation(reservation);
             const userDetails = await getUserDetailsById(reservation.userId);
-            console.log("User Details: ", userDetails);
+            // console.log("User Details: ", userDetails);
             setUser(userDetails.data.user);
             handleAddItem(reservation);
 
         } catch (error) {
             toast.error(error.response.data.message || "Server Error");
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -102,10 +108,10 @@ const BillingPage = () => {
                     Add New item types
                 </button>
             </div>
-        <section className='w-full flex flex-row'>
+        <section className='w-full flex flex-col md:flex-row gap-5 md:gap-0'>
 
             {/* Left side view */}
-            <div className='w-2/3 space-y-8 z-10'>
+            <div className='md:w-2/3 w-full space-y-8 z-10'>
 
                 {/* Guest card */}
                 <div className='border-white bg-white p-5 rounded-xl shadow-md w-full'>
@@ -165,61 +171,84 @@ const BillingPage = () => {
                             </button>
                         </div>
                     </section>
-                        {/* Billing items will be displayed here */}
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left border ">
-                            <thead className="bg-gray-100 text-black">
-                            <tr>
-                                <th className="p-2">Item Type</th>
-                                <th className="p-2">Description</th>
-                                <th className="p-2">QTY</th>
-                                <th className="p-2">Unit Price (LKR)</th>
-                                <th className="p-2">Sub Total (LKR)</th>
-                                <th className="p-2 text-center">Action</th>
-                            </tr>
-                            </thead>
-
-                            <tbody>
-                            {billingItems.length > 0 ? (
-                                billingItems.map((item, index) => {
-                                const subTotal = item.QTY * item.UnitPrice;
-
-                                return (
-                                    <tr key={item._id || index} className="border-t text-black">
-                                    <td className="p-2">{item.ItemType}</td>
-                                    <td className="p-2">{item.Description}</td>
-                                    <td className="p-2">{item.QTY}</td>
-                                    <td className="p-2">{item.UnitPrice}</td>
-                                    <td className="p-2 font-bold">
-                                        {subTotal}
-                                    </td>
-
-                                    <td className="p-2 text-center">
-                                        <button
-                                        onClick={() => handleDeleteItem(item._id)}
-                                        className="text-red-500 hover:text-red-700 bg-white! border-none!"
-                                        >
-                                        <Trash size={20} />
-                                        </button>
-                                    </td>
-                                    </tr>
-                                );
-                                })
-                            ) : (
-                                <tr>
-                                <td colSpan="6" className="text-center p-4 text-gray-400">
-                                    No billing items found
-                                </td>
-                                </tr>
-                            )}
-                            </tbody>
-                        </table>
+                    {/* Billing items will be displayed here */}
+                    {!roomNumber ? (
+                        <div className="col-span-3 flex flex-col items-center justify-center py-10">
+                            <p className="text-gray-500 mt-3">Enter a room number to view billing details</p>
                         </div>
+                    ) :  (
+                        <>
+                        {loading ? (
+                        <div className="col-span-3 flex flex-col items-center justify-center py-10">
+                            <div className="w-6 h-6 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                            <p className="text-gray-500 mt-3">Loading billing details...</p>
+                        </div>
+                        ) : (
+                            <>
+                            {roomNumber && !reservation ? (
+                                <div className="col-span-3 flex flex-col items-center justify-center py-10">
+                                    <p className="text-gray-500 mt-3">There is no active reservation for this room.</p>
+                                </div>
+                            ) : ( 
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm text-left border ">
+                                    <thead className="bg-gray-100 text-black">
+                                    <tr>
+                                        <th className="p-2">Item Type</th>
+                                        <th className="p-2">Description</th>
+                                        <th className="p-2">QTY</th>
+                                        <th className="p-2">Unit Price (LKR)</th>
+                                        <th className="p-2">Sub Total (LKR)</th>
+                                        <th className="p-2 text-center">Action</th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    {billingItems.length > 0 ? (
+                                        billingItems.map((item, index) => {
+                                        const subTotal = item.QTY * item.UnitPrice;
+
+                                        return (
+                                            <tr key={item._id || index} className="border-t text-black">
+                                            <td className="p-2">{item.ItemType}</td>
+                                            <td className="p-2">{item.Description}</td>
+                                            <td className="p-2">{item.QTY}</td>
+                                            <td className="p-2">{item.UnitPrice}</td>
+                                            <td className="p-2 font-bold">
+                                                {subTotal}
+                                            </td>
+
+                                            <td className="p-2 text-center">
+                                                <button
+                                                onClick={() => handleDeleteItem(item._id)}
+                                                className="text-red-500 hover:text-red-700 bg-white! border-none!"
+                                                >
+                                                <Trash size={20} />
+                                                </button>
+                                            </td>
+                                            </tr>
+                                        );
+                                    })
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="6" className="text-center p-4 text-gray-400">
+                                                No billing items found
+                                            </td>
+                                        </tr>
+                                    )}
+                                    </tbody>
+                                </table>
+                            </div>
+                            )}
+                            </>
+                        )}
+                    </>
+                    )}
                 </div>
             </div>
 
             {/* Right side view */}
-            <div className='w-1/3  pl-0 md:pl-12 pt-1 md:pt-3' >
+            <div className='md:w-1/3 w-full  pl-0 md:pl-12 pt-1 md:pt-3' >
                 <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
         
                     {/* HEADER */}
@@ -272,17 +301,18 @@ const BillingPage = () => {
                     </div>
 
                     {/* PAYMENT METHOD */}
-                    <div className="mt-5">
-                        <p className="text-xs text-gray-400 mb-1">
-                        PAYMENT METHOD
+                    {/* <div className="mt-5 relative flex -flex-row justify-between">
+                        <p className="text-xs text-gray-400 mb-1 items-center flex">
+                        CASH PAYMENT
                         </p>
+                        <button className='text-white'>
+                            Pay
+                        </button>
 
-                        <select className="w-full border rounded-lg p-2">
-                        <option>Credit Card (VISA ... 4242)</option>
-                        <option>Cash</option>
-                        <option>Online Payment</option>
-                        </select>
-                    </div>
+                        <div className="w-full relative flex flex-row justify-between border rounded-lg p-2">
+                        <p className="flex items-center">Cash</p>
+                        </div>
+                    </div> */}
 
                     {/* PAYMENT STATUS */}
                     <div className="mt-4 flex items-center justify-between">
@@ -306,6 +336,11 @@ const BillingPage = () => {
                         Generate Invoice
                         </button>
 
+                        <button className="w-full text-white py-3 rounded-xl flex items-center justify-center gap-2 shadow-md hover:opacity-90">
+                        <Receipt size={18} />
+                            Paid
+                        </button>
+
                         <button className="w-full border border-purple-300 text-white py-3 rounded-xl hover:bg-purple-50">
                         Send to Guest Email
                         </button>
@@ -316,13 +351,13 @@ const BillingPage = () => {
                 </div>
             </div>
         </section>
-        <div>
+        {/* <div>
             <p className='dark:text-slate-400 text-slate-500
                 md:hidden flex
                 max-w-md md:max-w-md lg:max-w-md'>
                 Selected works that demonstrate technical depth and design precision.
             </p>
-        </div>
+        </div> */}
         <AddBillingItemModal
             isOpen={showModal}
             onClose={() => setShowModal(false)}
