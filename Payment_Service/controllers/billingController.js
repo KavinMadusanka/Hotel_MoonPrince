@@ -115,7 +115,7 @@ export const getBillingDetails = async (req, res) => {
 //get bill details for user
 export const getUserBill = async (req, res) => {
   try {
-    const userId  = req.user._id;
+    const userId  = req.user.id;
     const bills = await billing.find({ userId, status: "pending" });
     res.status(200).json({
       success: true,

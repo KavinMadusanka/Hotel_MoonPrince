@@ -34,7 +34,8 @@ export const isUser = (req, res, next) => {
     const role = req.user.role;
     if (role !== 0) {
         return res.status(403).json({
-        message: "Access denied",
+            success: false,
+            message: "Access denied"
         });
     }
     next();
@@ -45,7 +46,8 @@ export const isAdmin = (req, res, next) => {
     const role = req.user.role;
     if (role !== 2) {
         return res.status(403).json({
-        message: "Access denied: Admin only",
+            success: false,
+            message: "Access denied: Admin only",
         });
     }
     next();
@@ -57,7 +59,8 @@ export const isReceptionist = (req, res, next) => {
     // console.log(role);
     if (role !== 1) {
         return res.status(403).json({
-        message: "Access denied: Receptionist only",
+            success: false,
+            message: "Access denied: Receptionist only",
         });
     }
     next();

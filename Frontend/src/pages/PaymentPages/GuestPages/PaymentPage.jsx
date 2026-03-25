@@ -2,39 +2,71 @@ import React, { useEffect } from 'react'
 import Layout from '../../../layouts/Layout';
 import { CreditCard, Download } from 'lucide-react';
 import { getUserBill } from '../../../apiService/PaymentService';
+import { getUserDetails } from '../../../apiService/userService';
 
 const PaymentPage = () => {
-  const invoice = {
-    guest: "Serenity Tsukino",
-    room: "702 - Royal Suite",
-    date: "October 24, 2023",
+  const [bill, setBill] = React.useState({
+    subtotal: 0,
+    tax: 0,
+    total: 0,
+    accommodationCharges: 0,
+    foodCharges: 0,
+    additionalServicesFee: 0,
+  });
+  const [user, setUser] = React.useState(null);
+  const [billDetails, setBillDetails] = React.useState(null);
 
-    items: [
-      {
-        name: "Royal Suite - 3 Nights",
-        desc: "Luxury Accommodation",
-        qty: 1,
-        price: 850,
-      },
-      {
-        name: "In-Room Dining (Dinner)",
-        desc: "Signature Lunar Seafood Platter",
-        qty: 2,
-        price: 75,
-      },
-      {
-        name: "Spa Treatment - Lunar Glow",
-        desc: "Full Body Therapy & Steam",
-        qty: 1,
-        price: 220,
-      },
-    ],
+  const calculateBillSummary = (data) => {
+    if (!Array.isArray(data) || data.length === 0) {
+      return ;
+    }
+
+    const billingItems = data.flatMap((bill) => bill.billingItems || []);
+
+
+    let taxRate = 0.1
+    let accommodationCharges = 0;
+    let foodCharges = 0;
+    let additionalServicesFee = 0;
+
+    billingItems.forEach((item) => {
+      const itemTotal = (item.QTY || 0) * (item.UnitPrice || 0);
+
+      if (item.ItemType === "Accommodation") {
+        accommodationCharges += itemTotal;
+      } else if (item.ItemType === "Food & Beverages") {
+        foodCharges += itemTotal;
+      } else {
+        additionalServicesFee += itemTotal;
+      }
+    });
+
+    const subtotal =
+      accommodationCharges + foodCharges + additionalServicesFee;
+
+    const tax = subtotal * taxRate;
+    const total = subtotal + tax;
+
+    return {
+      subtotal,
+      tax,
+      total,
+      accommodationCharges,
+      foodCharges,
+      additionalServicesFee,
+    };
   };
-  useEffect(() => {
+
+useEffect(() => {
     const fetchBill = async () => {
       try {
+        const userDetails = await getUserDetails();
+        // console.log("User: ", userDetails.data.user);
+        setUser(userDetails.data.user);
         const res = await getUserBill();
-        console.log(res);
+        console.log(res.data.data);
+        setBillDetails(res.data.data);
+        setBill(calculateBillSummary(res.data.data));
       } catch (error) {
         console.log(error);
       }
@@ -42,16 +74,10 @@ const PaymentPage = () => {
     fetchBill();
   }, []);
 
+  // console.log(bill);
+  // console.log("Bill Details",billDetails);
+  const allBillingItems = billDetails?.flatMap((bill) => bill.billingItems || []) || [];
 
-
-  const subtotal = invoice.items.reduce(
-    (acc, item) => acc + item.qty * item.price,
-    0
-  );
-
-  const tax = subtotal * 0.10;
-  const service = subtotal * 0.05;
-  const total = subtotal + tax + service;
   
   return (
     <Layout>
@@ -60,7 +86,7 @@ const PaymentPage = () => {
         {/* HEADER */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-black">My Invoice</h1>
+            <h1 className="text-2xl font-bold text-black mb-1">My Invoice</h1>
             <p className="text-gray-500 text-sm">
               View and manage your recent stay charges and payments
             </p>
@@ -91,13 +117,18 @@ const PaymentPage = () => {
             </div>
 
             <div className="text-right">
-              <span className="text-xs bg-red-100 text-red-500 px-2 py-1 rounded-full">
-                PAYMENT PENDING
+              <span  className={`text-xs px-2 py-1 rounded-full ${
+                  bill.total > 0
+                    ? "bg-red-100 text-red-500"
+                    : "bg-green-100 text-green-600"
+                }`}>
+                {(bill.total > 0) ? "PAYMENT PENDING" : "ALL SETTLED"}
               </span>
+                {/* PAYMENT PENDING */}
               <h2 className="text-xl font-bold text-gray-700 mt-2">
                 INVOICE
               </h2>
-              <p className="text-sm text-gray-500">#INV-2023-0892</p>
+              {/* <p className="text-sm text-gray-500">#INV-2023-0892</p> */}
             </div>
           </div>
 
@@ -105,17 +136,17 @@ const PaymentPage = () => {
           <div className="grid grid-cols-3 gap-6 bg-gray-50 p-6 text-sm">
             <div>
               <p className="text-gray-400">GUEST NAME</p>
-              <p className="font-medium text-black">{invoice.guest}</p>
+              <p className="font-medium text-black">{user?.name || "Guest"}</p>
             </div>
 
             <div>
               <p className="text-gray-400">ROOM DETAILS</p>
-              <p className="font-medium text-black">{invoice.room}</p>
+              {/* <p className="font-medium text-black">{invoice.room}</p> */}
             </div>
 
             <div>
               <p className="text-gray-400">ISSUE DATE</p>
-              <p className="font-medium text-black">{invoice.date}</p>
+              {/* <p className="font-medium text-black">{invoice.date}</p> */}
             </div>
           </div>
 
@@ -132,19 +163,19 @@ const PaymentPage = () => {
               </thead>
 
               <tbody>
-                {invoice.items.map((item, index) => {
-                  const sub = item.qty * item.price;
+                {allBillingItems.map((item, index) => {
+                  const sub = item.QTY * item.UnitPrice;
 
                   return (
                     <tr key={index} className="border-b text-black">
                       <td className="py-4">
-                        <p className="font-medium">{item.name}</p>
-                        <p className="text-xs text-gray-400">{item.desc}</p>
+                        <p className="font-medium">{item.ItemType}</p>
+                        <p className="text-xs text-gray-400">{item.Description}</p>
                       </td>
-                      <td className="text-center">{item.qty}</td>
-                      <td className="text-center">${item.price}</td>
+                      <td className="text-center">{item.QTY}</td>
+                      <td className="text-center">LKR {item.UnitPrice}</td>
                       <td className="text-right font-medium">
-                        ${sub.toLocaleString()}
+                        LKR {sub.toLocaleString()}
                       </td>
                     </tr>
                   );
@@ -168,31 +199,55 @@ const PaymentPage = () => {
             </div>
 
             {/* TOTAL */}
-            <div className="w-1/2 space-y-2 text-sm">
+            <div className="w-1/2 space-y-2 text-sm text-black">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>${subtotal.toLocaleString()}</span>
-              </div>
-
-              <div className="flex justify-between">
-                <span>Tax (10%)</span>
-                <span>${tax.toLocaleString()}</span>
-              </div>
-
-              <div className="flex justify-between">
-                <span>Service Charge (5%)</span>
-                <span>${service.toLocaleString()}</span>
-              </div>
-
-              <div className="flex justify-between font-bold text-lg mt-2">
-                <span>Grand Total</span>
-                <span className="text-yellow-500">
-                  ${total.toLocaleString()}
+                <span className="flex flex-row gap-3">
+                  <p>
+                    LKR
+                  </p>
+                  <p>
+                    {bill.subtotal.toLocaleString()}
+                  </p>
                 </span>
               </div>
 
-              <button className="w-full mt-4 bg-purple-700 text-white py-3 rounded-xl hover:bg-purple-800">
-                Pay Total ${total.toLocaleString()}
+              <div className="flex justify-between text-black">
+                <span>Tax (10%)</span>
+                <span className="flex flex-row gap-3">
+                  <p>
+                    LKR
+                  </p>
+                  <p>
+                    {bill.tax.toLocaleString()}
+                  </p>
+                </span>
+              </div>
+
+              {/* <div className="flex justify-between">
+                <span>Service Charge (5%)</span>
+                <span>${service.toLocaleString()}</span>
+              </div> */}
+
+              <div className="flex justify-between font-bold text-lg mt-2">
+                <span>Grand Total</span>
+                <span className="text-yellow-500 flex flex-row gap-3">
+                  <p>
+                    LKR
+                  </p>
+                  <p>
+                  {bill.total.toLocaleString()}
+                  </p>
+                </span>
+              </div>
+
+              <button className="w-full mt-4 bg-purple-700 text-white py-3 rounded-xl hover:bg-purple-800 flex flex-row gap-3 justify-center items-center">
+                <p>
+                  Pay Total LKR
+                </p>
+                <p>
+                  {bill.total.toLocaleString()}
+                </p>
               </button>
             </div>
           </div>
