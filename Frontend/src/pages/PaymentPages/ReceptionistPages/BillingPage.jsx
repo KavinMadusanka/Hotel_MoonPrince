@@ -80,7 +80,7 @@ const BillingPage = () => {
             handleAddItem(reservation);
 
         } catch (error) {
-            toast.error(error.response.data.message || "Server Error");
+            toast.error(error.response.data.message);
         } finally {
             setLoading(false);
         }
@@ -94,19 +94,28 @@ const BillingPage = () => {
 
   return (
     <AdminPageLayout>
-        <div className='relative min-h-screen w-full md:px-10 px-3 pb-10 '>
+        <div className='relative min-h-screen w-full md:px-10 md:p-6 p-5 px-3 pb-10'>
             <div className='relative flex flex-row justify-between'>
-                <p className='text-black 
-                    text-3xl md:text-4xl lg-text-5xl font-bold tracking-wide mb-10'>
-                    Create New Bill
-                </p>
-                <button
-                    onClick={() => setShowModal(true)}
-                    className='text-white font-bold tracking-wider flex flex-row items-center gap-3 mb-5'
-                >
-                    <PlusCircle size={20} className="text-white" />
-                    Add New item types
-                </button>
+                <div>
+                    <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-violet-50 px-3 py-1 text-xs border font-semibold text-violet-700">
+                        <ClipboardList size={14} />
+                        Receptionist Panel
+                    </div>
+                    <p className='text-black 
+                        text-[20px] font-bold tracking-wide mb-10'>
+                        Create New Bill
+                    </p>
+                </div>
+
+                <div className='relative flex flex-row w-1/2 gap-5 items-center mb-4 justify-end'>
+                    <button
+                        onClick={() => setShowModal(true)}
+                        className='text-white font-bold tracking-wider flex flex-row items-center gap-3'
+                    >
+                        <PlusCircle size={20} className="text-white" />
+                        Add New item types
+                    </button>
+                </div>
             </div>
         <section className='w-full flex flex-col md:flex-row gap-5 md:gap-0'>
 
@@ -121,7 +130,7 @@ const BillingPage = () => {
                             Guest Details
                         </p>
                     </div>
-                    <section className='w-full flex flex-row gap-4'>
+                    <section className='w-auto flex flex-row gap-4'>
                         <div className='gap-3 flex flex-col'>
                             <p className='text-black font-medium'>
                                 Guest Name

@@ -12,11 +12,11 @@ const userProxy = createProxyMiddleware({
         }
       },
       error: (err, req, res) => {
-        console.error("Room inventory proxy error:", err.message);
+        console.error("User service proxy error:", err.message);
   
         if (!res.headersSent) {
           res.status(500).json({
-            message: "Proxy error while contacting room inventory service",
+            message: "Proxy error while contacting user service",
             error: err.message,
           });
         }
