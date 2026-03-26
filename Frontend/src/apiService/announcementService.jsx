@@ -5,10 +5,25 @@ const API_VERSION = import.meta.env.VITE_API_VERSION;
 
 const GUEST_BASE = `${USER_SERVICE_URL}${API_VERSION}/guestService`;
 
+const getAuthHeader = (contentType = null) => {
+  const token = localStorage.getItem("token");
+  const headers = {
+    Authorization: `Bearer ${token}`
+  };
+  if (contentType) {
+    headers["Content-Type"] = contentType;
+  }
+  return {
+    withCredentials: true,
+    headers
+  };
+};
+
 export const createAnnouncement = async (formData) => {
   return axios.post(`${GUEST_BASE}/announcements`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${localStorage.getItem("token")}`
     },
     withCredentials: true,
   });
@@ -23,15 +38,15 @@ export const getAllAnnouncements = async () => {
 };
 
 export const deleteAnnouncement = async (id) => {
-  return axios.delete(`${GUEST_BASE}/announcements/${id}`, { withCredentials: true });
+  return axios.delete(`${GUEST_BASE}/announcements/${id}`, getAuthHeader());
 };
 
 export const pinAnnouncement = async (id) => {
-  return axios.put(`${GUEST_BASE}/announcements/pin/${id}`, {}, { withCredentials: true });
+  return axios.put(`${GUEST_BASE}/announcements/pin/${id}`, {}, getAuthHeader());
 };
 
 export const publishAnnouncement = async (id) => {
-  return axios.put(`${GUEST_BASE}/announcements/publish/${id}`, {}, { withCredentials: true });
+  return axios.put(`${GUEST_BASE}/announcements/publish/${id}`, {}, getAuthHeader());
 };
 
 export const getAnnouncement = async (id) => {
@@ -40,7 +55,10 @@ export const getAnnouncement = async (id) => {
 
 export const updateAnnouncement = async (id, formData) => {
   return axios.put(`${GUEST_BASE}/announcements/${id}`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
+    headers: {
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${localStorage.getItem("token")}`
+    },
     withCredentials: true,
   });
 };
