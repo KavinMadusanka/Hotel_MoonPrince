@@ -1,0 +1,40 @@
+name: Deploy Payment Service
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'Payment_Service/**'   # Only triggers when Payment_Service folder changes
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker asia-southeast1-docker.pkg.dev
+
+      - name: Build Docker image
+        run: |
+          docker build -t asia-southeast1-docker.pkg.dev/hotelmoonprince/hotel-repo/payment-service:latest ./Payment_Service
+
+      - name: Push Docker image
+        run: |
+          docker push asia-southeast1-docker.pkg.dev/hotelmoonprince/hotel-repo/payment-service:latest
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy payment-service \
+            --image=asia-southeast1-docker.pkg.dev/hotelmoonprince/hotel-repo/payment-service:latest \
+            --region=asia-southeast1 \
+            --platform=managed \
+            --allow-unauthenticated
