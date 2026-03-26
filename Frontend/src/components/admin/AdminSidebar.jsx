@@ -48,22 +48,17 @@ function AdminSidebar() {
 
   const handleLogout = async () => {
     try {
-      const res = await logout();
-
-      if (res.data.success) {
-        toast.success(res.data.message || "Logged out successfully");
-      }
+      await logout();
 
       localStorage.removeItem("auth");
+      localStorage.removeItem('token');
       Cookies.remove("access_token");
       setAuth({ ...auth, token: "" });
       navigate("/signin");
+
     } catch (error) {
-      localStorage.removeItem("auth");
-      Cookies.remove("access_token");
-      setAuth({ ...auth, token: "" });
       toast.error(error?.response?.data?.message || "Logout failed");
-      navigate("/signin");
+      // navigate("/signin");
     }
   };
 

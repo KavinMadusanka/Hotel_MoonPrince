@@ -16,6 +16,6 @@ router.get("/get-user-details", requiredSignIn, getUserDetails);
 router.get("/get-details/:id", requiredSignIn, isReceptionist, getUserDetailsById);
 router.get("/get-user-name-dp/:id", getUserNameDpById);
 router.patch("/update-profile", requiredSignIn, upload.single("photo"), updateUserDetails);
-router.post("/logout", requiredSignIn, logout);
+router.post("/logout", logout);
 
 export default router;

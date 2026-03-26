@@ -40,8 +40,7 @@ const Header = () => {
         try {
             const res = await logout();
             if (res.data.success) {
-                console.log("first")
-                toast.success(res.data.message);
+                // toast.success(res.data.message);
                 localStorage.removeItem('auth');
                 localStorage.removeItem('token');
                 Cookies.remove('access_token');
