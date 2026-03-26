@@ -6,13 +6,17 @@ import { createReview,
     deleteReview,
     pinReview,
     unpinReview,
-    getReviewsByUser} from '../controllers/reviewController.js';
+    getReviewsByUser,
+    getAllReviews} from '../controllers/reviewController.js';
 import { isAdmin, requiredSignIn } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 // Create Review
 router.post("/", requiredSignIn, createReview);
+
+// Get All Reviews
+router.get("/all", getAllReviews);
 
 // Get Reviews by Room Type ID
 router.get("/room/:roomTypeId", getReviewsByRoomId);

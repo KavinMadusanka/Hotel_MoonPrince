@@ -329,3 +329,24 @@ export const unpinReview = async (req, res) => {
         });
     }
 };
+
+// Get All Reviews
+export const getAllReviews = async (req, res) => {
+    try {
+        const reviews = await Review.find({}).sort({ rating: -1, createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            count: reviews.length,
+            data: reviews
+        });
+
+    } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};

@@ -26,6 +26,10 @@ export const getReviewsByRoomType = async (roomTypeId) => {
 	return axios.get(`${GUEST_BASE}/reviews/room/${roomTypeId}`);
 };
 
+export const getAllReviews = async () => {
+	return axios.get(`${GUEST_BASE}/reviews/all`);
+};
+
 export const pinReview = async (id) => {
 	return axios.put(`${GUEST_BASE}/reviews/pin/${id}`, {}, { withCredentials: true });
 };
@@ -34,4 +38,4 @@ export const unpinReview = async (id) => {
 	return axios.put(`${GUEST_BASE}/reviews/unpin/${id}`, {}, { withCredentials: true });
 };
 
-export default { createReview, getReviewsByUser, updateReview, deleteReview, getReviewsByRoomType, pinReview, unpinReview };
+export default { createReview, getReviewsByUser, getAllReviews, updateReview, deleteReview, getReviewsByRoomType, pinReview, unpinReview };

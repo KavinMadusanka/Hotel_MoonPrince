@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import Layout from "../../../layouts/Layout.jsx";
 import { Star, Pencil, Trash2, X, Search, ChevronDown, SlidersHorizontal, AlertCircle } from "lucide-react";
 import reviewService from "../../../apiService/reviewService.jsx";
@@ -80,6 +81,7 @@ function RatingBadge({ rating }) {
 const SORT_OPTIONS = ["Newest First", "Oldest First"];
 
 export default function MyReviewsPage() {
+  const navigate = useNavigate();
   const [reviews, setReviews]           = useState([]);
   const [loading, setLoading]           = useState(true);
   const [error, setError]               = useState(null);
@@ -329,7 +331,15 @@ export default function MyReviewsPage() {
                 <div
                   key={r._id}
                   className="rev-card"
-                  style={{ background: "#fff", borderRadius: 16, padding: "20px 22px", border: "1px solid #ede9fe", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}
+                  onClick={() => navigate(`/guest-rooms/${r.roomTypeId}`, { state: { scrollToReviews: true } })}
+                  style={{ 
+                    background: "#fff", 
+                    borderRadius: 16, 
+                    padding: "20px 22px", 
+                    border: "1px solid #ede9fe", 
+                    boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+                    cursor: "pointer"
+                  }}
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -363,7 +373,10 @@ export default function MyReviewsPage() {
                     <div style={{ display: "flex", flexDirection: "column", gap: 8, flexShrink: 0 }}>
                       <button
                         className="act-btn"
-                        onClick={() => openEdit(r)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openEdit(r);
+                        }}
                         style={{ display: "flex", alignItems: "center", gap: 6, background: PURPLE_PALE, color: PURPLE, border: `1.5px solid ${PURPLE_BORDER}`, padding: "8px 14px", borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 700, fontFamily: "'Inter', sans-serif", outline: "none" }}
                         onMouseEnter={(e) => e.currentTarget.style.background = "#ddd6fe"}
                         onMouseLeave={(e) => e.currentTarget.style.background = PURPLE_PALE}
@@ -372,7 +385,10 @@ export default function MyReviewsPage() {
                       </button>
                       <button
                         className="act-btn"
-                        onClick={() => handleDelete(r._id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(r._id);
+                        }}
                         style={{ display: "flex", alignItems: "center", gap: 6, background: "#fef2f2", color: "#dc2626", border: "1.5px solid #fecaca", padding: "8px 14px", borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 700, fontFamily: "'Inter', sans-serif", outline: "none" }}
                         onMouseEnter={(e) => e.currentTarget.style.background = "#fecaca"}
                         onMouseLeave={(e) => e.currentTarget.style.background = "#fef2f2"}
