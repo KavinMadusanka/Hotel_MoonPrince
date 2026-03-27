@@ -6,11 +6,11 @@ const API_VERSION = import.meta.env.VITE_API_VERSION;
 const token = localStorage.getItem("token");
 
 export const getResercevationDetails = async (userId) => {
-    return axios.get(`${BASE_URL}${API_VERSION}/reservations/user/${userId}`);
+    return axios.get(`${BASE_URL}${API_VERSION}/reservations/api/v1/reservations/user/${userId}`);
 }
 
 export const getAllReservations = async () => {
-    return axios.get(`${BASE_URL}${API_VERSION}/reservations/`);
+    return axios.get(`${BASE_URL}${API_VERSION}/reservations/api/v1/reservations`);
 }
 
 export const getBillDetails = async (userId, roomId) => {
