@@ -59,12 +59,12 @@ const BillingPage = () => {
             setUser(null);
             
             const res = await getRooms();
-            // console.log("Rooms Data: ", res)
+            console.log("Rooms Data: ", res)
             const room = res.data.find(r => r.roomNumber === roomNumber);
-            // console.log("Found Room: ", room);
+            console.log("Found Room: ", room);
 
             const allReservations = await getAllReservations();
-            // console.log("All Reservations: ", allReservations);
+            console.log("All Reservations: ", allReservations);
 
             const reservation = allReservations.data.data.find(res => res.roomId === room._id && res.status === "checked_in");
             console.log("Found Reservation: ", reservation);
