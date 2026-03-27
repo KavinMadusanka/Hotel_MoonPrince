@@ -25,7 +25,11 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t asia-southeast1-docker.pkg.dev/hotelmoonprince/hotel-repo/frontend:latest ./Frontend
+          docker build \
+            --build-arg VITE_USER_SERVICE_URL=${{ secrets.VITE_USER_SERVICE_URL }} \
+            --build-arg VITE_API_VERSION=${{ secrets.VITE_API_VERSION }} \
+            -t asia-southeast1-docker.pkg.dev/hotelmoonprince/hotel-repo/frontend:latest \
+            ./Frontend
 
       - name: Push Docker image
         run: |

@@ -6,6 +6,15 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
+
+# Accept build arguments
+ARG VITE_USER_SERVICE_URL
+ARG VITE_API_VERSION
+
+# Make them available to Vite during build
+ENV VITE_USER_SERVICE_URL=$VITE_USER_SERVICE_URL
+ENV VITE_API_VERSION=$VITE_API_VERSION
+
 RUN npm run build
 
 # production stage
