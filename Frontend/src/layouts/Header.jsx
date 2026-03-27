@@ -17,7 +17,7 @@ const Header = () => {
     const [auth, setAuth] = useAuth();
     const [open, setOpen] = useState(false);
     const [user, setUser] = useState({});
-    // const [photo, setPhoto] = useState([]);
+    const [photo, setPhoto] = useState([]);
     const [imageLoaded, setImageLoaded] = useState(false);;
     useEffect(() => {
         const fetchUserProfile = async () => {
@@ -26,6 +26,8 @@ const Header = () => {
                 // console.log(res)
                 if (res.data.success) {
                     setUser(res.data.user);
+                    const imageUrl = `${import.meta.env.VITE_USER_SERVICE_URL}${import.meta.env.VITE_API_VERSION}/user_photos/${res.data.user.photo}`;
+                    setPhoto(imageUrl);
                 } else {
                     toast.error(res.data.message);
                 }
@@ -121,7 +123,7 @@ const Header = () => {
                                 <>
                                 {!imageLoaded && <User2 size={24} />}
                                 <img
-                                    src={`${import.meta.env.VITE_USER_SERVICE_URL}${import.meta.env.VITE_API_VERSION}/userService/user_photos/${user.photo}`}   // replace with user image
+                                    src={photo}   // replace with user image
                                     alt="profile"
                                     onLoad={() => setImageLoaded(true)}
                                     className="w-full h-full object-cover scale-200 object-top"
