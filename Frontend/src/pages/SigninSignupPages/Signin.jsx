@@ -64,6 +64,8 @@ const Signin = () => {
         const decoded = parseJwt(token);
         if (Number(decoded?.role) === 2) {
           navigate("/admin-dashboard");
+        } else if (Number(decoded?.role) === 1) {
+          navigate("/billing");
         } else {
           navigate("/home");
         }
