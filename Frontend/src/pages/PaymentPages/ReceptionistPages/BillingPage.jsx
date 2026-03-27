@@ -67,15 +67,15 @@ const BillingPage = () => {
             // console.log("All Reservations: ", allReservations);
 
             const reservation = allReservations.data.data.find(res => res.roomId === room._id && res.status === "checked_in");
-            // console.log("Found Reservation: ", reservation);
+            console.log("Found Reservation: ", reservation);
 
             if (!reservation) {
-                // toast.error("There is no active reservation for this room.");
+                toast.error("There is no active reservation for this room.");
                 return;
             }
             setReservation(reservation);
             const userDetails = await getUserDetailsById(reservation.userId);
-            // console.log("User Details: ", userDetails);
+            console.log("User Details: ", userDetails);
             setUser(userDetails.data.user);
             handleAddItem(reservation);
 
