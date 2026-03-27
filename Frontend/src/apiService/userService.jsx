@@ -60,6 +60,12 @@ export const getUserDetailsById = async(id) => {
 }
 
 export const getUserNameDpById = async(id) => {
-    const res = await axios.get(`${USER_SERVICE_URL}${API_VERSION}/userService/user/get-user-name-dp/${id}`);
+    const res = await axios.get(`${USER_SERVICE_URL}${API_VERSION}/userService/user/get-user-name-dp/${id}`,
+        {
+            withCredentials: true,
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
     return res;
 }
