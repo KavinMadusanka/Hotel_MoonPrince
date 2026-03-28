@@ -58,15 +58,11 @@ export const updateRoomType = async (id, formData) => {
 };
 
 export const deleteRoomType = async (id) => {
-  return axios.delete(`${ROOM_INVENTORY_BASE}/room-types/${id}`, {
-    withCredentials: true,
-  });
+  return axios.delete(`${ROOM_INVENTORY_BASE}/room-types/${id}`, getAuthHeader());
 };
 
 export const createRoom = async (payload) => {
-  return axios.post(`${ROOM_INVENTORY_BASE}/rooms`, payload, {
-    withCredentials: true,
-  });
+  return axios.post(`${ROOM_INVENTORY_BASE}/rooms`, payload, getAuthHeader());
 };
 
 export const getRooms = async () => {
