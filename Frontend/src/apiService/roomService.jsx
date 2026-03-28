@@ -5,7 +5,20 @@ const API_VERSION = import.meta.env.VITE_API_VERSION;
 
 const ROOM_INVENTORY_BASE = `${USER_SERVICE_URL}${API_VERSION}/roomInventoryService`;
 
-const token = localStorage.getItem("token");
+//const token = localStorage.getItem("token");
+const getAuthHeader = (contentType = null) => {
+  const token = localStorage.getItem("token");
+  const headers = {
+    Authorization: `Bearer ${token}`
+  };
+  if (contentType) {
+    headers["Content-Type"] = contentType;
+  }
+  return {
+    withCredentials: true,
+    headers
+  };
+};
 
 export const getRoomTypes = async () => {
   return axios.get(`${ROOM_INVENTORY_BASE}/room-types`, {
@@ -59,9 +72,6 @@ export const createRoom = async (payload) => {
 export const getRooms = async () => {
   return axios.get(`${ROOM_INVENTORY_BASE}/rooms`, {
     withCredentials: true,
-    headers: {
-        Authorization: `Bearer ${token}`
-    }
   });
 };
 
@@ -72,9 +82,7 @@ export const updateRoom = async (id, payload) => {
 };
 
 export const deleteRoom = async (id) => {
-  return axios.delete(`${ROOM_INVENTORY_BASE}/rooms/${id}`, {
-    withCredentials: true,
-  });
+  return axios.delete(`${ROOM_INVENTORY_BASE}/rooms/${id}`, getAuthHeader());
 };
 
 export const updateRoomStatus = async (id, payload) => {
