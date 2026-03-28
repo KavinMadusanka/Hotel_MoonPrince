@@ -65,7 +65,7 @@ export const cancelReservation = async (id, cancellationReason = "") => {
 
 export const checkInReservation = async (id) => {
   const res = await axios.post(
-    `${API_BASE_URL}${API_VERSION}/checkinout/api/v1/checkinout/${id}/check-in`,
+    `${API_BASE_URL}${API_VERSION}/reservations/api/v1/checkinout/${id}/check-in`,
     {},
     { withCredentials: true }
   );
@@ -74,7 +74,7 @@ export const checkInReservation = async (id) => {
 
 export const checkOutReservation = async (id) => {
   const res = await axios.post(
-    `${API_BASE_URL}${API_VERSION}/checkinout/api/v1/checkinout/${id}/check-out`,
+    `${API_BASE_URL}${API_VERSION}/checkinout/api/v1/reservations/${id}/check-out`,
     {},
     { withCredentials: true }
   );
