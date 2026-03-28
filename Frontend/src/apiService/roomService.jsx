@@ -44,6 +44,7 @@ export const createRoomType = async (formData) => {
     withCredentials: true,
     headers: {
       "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${localStorage.getItem("token")}`
     },
   });
 };
@@ -53,6 +54,7 @@ export const updateRoomType = async (id, formData) => {
     withCredentials: true,
     headers: {
       "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${localStorage.getItem("token")}`
     },
   });
 };
@@ -66,15 +68,11 @@ export const createRoom = async (payload) => {
 };
 
 export const getRooms = async () => {
-  return axios.get(`${ROOM_INVENTORY_BASE}/rooms`, {
-    withCredentials: true,
-  });
+  return axios.get(`${ROOM_INVENTORY_BASE}/rooms`,getAuthHeader());
 };
 
 export const updateRoom = async (id, payload) => {
-  return axios.patch(`${ROOM_INVENTORY_BASE}/rooms/${id}`, payload, {
-    withCredentials: true,
-  });
+  return axios.patch(`${ROOM_INVENTORY_BASE}/rooms/${id}`, payload, getAuthHeader());
 };
 
 export const deleteRoom = async (id) => {
@@ -82,9 +80,7 @@ export const deleteRoom = async (id) => {
 };
 
 export const updateRoomStatus = async (id, payload) => {
-  return axios.patch(`${ROOM_INVENTORY_BASE}/rooms/${id}/status`, payload, {
-    withCredentials: true,
-  });
+  return axios.patch(`${ROOM_INVENTORY_BASE}/rooms/${id}/status`, payload, getAuthHeader());
 };
 
 export const getHolds = async ({ status = "all", search = "" } = {}) => {
@@ -98,9 +94,7 @@ export const getHolds = async ({ status = "all", search = "" } = {}) => {
 };
 
 export const getHoldById = async (id) => {
-  return axios.get(`${ROOM_INVENTORY_BASE}/holds/${id}`, {
-    withCredentials: true,
-  });
+  return axios.get(`${ROOM_INVENTORY_BASE}/holds/${id}`, getAuthHeader());
 };
 
 export const confirmHold = async (holdId) => {
