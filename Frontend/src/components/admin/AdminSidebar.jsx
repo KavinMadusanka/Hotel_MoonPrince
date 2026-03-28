@@ -222,6 +222,22 @@ function AdminSidebar() {
         </NavLink>
 
         <NavLink
+          to="/availability"
+          className={({ isActive }) =>
+            `${mainLinkClasses} ${
+              isActive ? "bg-[#6A0DAD]" : "hover:bg-white/5"
+            }`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              <Archive size={18} className={isActive ? "text-white" : "text-black"} />
+              <span className={isActive ? "text-white" : "text-black"}>Rooms Availability</span>
+            </>
+          )}
+        </NavLink>
+
+        <NavLink
           to="/reservations"
           className={({ isActive }) =>
             `${mainLinkClasses} ${
