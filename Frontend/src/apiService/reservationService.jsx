@@ -14,7 +14,7 @@ export const createReservation = async (reservationData) => {
 
 export const getAllReservations = async () => {
   const res = await axios.get(
-    `${API_BASE_URL}${API_VERSION}/reservations`,
+    `${API_BASE_URL}${API_VERSION}/reservations/api/v1/reservations`,
     { withCredentials: true }
   );
   return res;
