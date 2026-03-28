@@ -12,7 +12,7 @@ const options = {
     servers: [
       {
         url: "https://room-inventory-service-861717114034.asia-southeast1.run.app",
-        description: "Local development server"
+        description: "Production server"
       }
     ],
     components: {
