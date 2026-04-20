@@ -44,7 +44,7 @@ function AdminReservationsPage() {
         toast.success("Reservation cancelled");
       } else if (type === "checkin") {
         await checkInReservation(id);
-        await createBillForReservation(item.userId);
+        await createBillForReservation(item.userId, item.roomTypeId);
         toast.success("Guest checked in");
       } else if (type === "checkout") {
         await checkOutReservation(id);

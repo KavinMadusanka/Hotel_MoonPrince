@@ -85,12 +85,11 @@ export const getUserBill = async () => {
 }
 
 //create bill for reservation
-export const createBillForReservation = async (userId) => {
-    console.log("userid: ", userId);
+export const createBillForReservation = async (userId, roomId) => {
     return axios.post(`${BASE_URL}${API_VERSION}/payment/billing/create`,
         {
             userId,
-            roomId: "69bed05c6e330672a214c0d1"
+            roomId
         },
         {
             withCredentials: true,
