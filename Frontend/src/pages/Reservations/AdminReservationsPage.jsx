@@ -9,6 +9,7 @@ import {
   getAllReservations
 } from "../../apiService/reservationService";
 import { CalendarClock, Hotel } from "lucide-react";
+import { createBillForReservation } from './../../apiService/PaymentService';
 
 function AdminReservationsPage() {
   const [reservations, setReservations] = useState([]);
@@ -31,7 +32,7 @@ function AdminReservationsPage() {
     fetchReservations();
   }, []);
 
-  const runAction = async (type, id) => {
+  const runAction = async (type, id, item) => {
     try {
       setProcessingId(id);
 
@@ -43,6 +44,7 @@ function AdminReservationsPage() {
         toast.success("Reservation cancelled");
       } else if (type === "checkin") {
         await checkInReservation(id);
+        await createBillForReservation(item.userId);
         toast.success("Guest checked in");
       } else if (type === "checkout") {
         await checkOutReservation(id);
@@ -187,7 +189,7 @@ function AdminReservationsPage() {
                   {item.status === "confirmed" && (
                     <button
                       type="button"
-                      onClick={() => runAction("checkin", item._id)}
+                      onClick={() => runAction("checkin", item._id, item)}
                       disabled={processingId === item._id}
                       className="rounded-full bg-violet-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-800 disabled:opacity-70"
                     >

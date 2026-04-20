@@ -4,7 +4,25 @@ import billing from "../models/billingModel.js";
 export const createBilling = async (req, res) => {
     try {
       console.log("first")
-        const { userId, roomId, billingItems } = req.body;
+        const { userId, roomId } = req.body;
+        let roomDetails = null;
+        try {
+          const roomRes = await axios.get(
+            `${process.env.ROOM_SERVICE_URL}/room-types/${roomId}`
+          );
+          roomDetails = roomRes.data?.data;
+        } catch (roomError) {
+          console.error("Room service call failed:", roomError.message);
+        }
+        const billingItems = [];
+        if (roomDetails) {
+          billingItems.push({
+            itemName: roomDetails.name,
+            itemPrice: roomDetails.basePrice,
+            quantity: 1
+          });
+        }
+
         const newBilling = new billing({
             userId,
             roomId,
@@ -18,12 +36,6 @@ export const createBilling = async (req, res) => {
             data: newBilling
         });
 
-        await newBilling.save();
-
-        res.status(201).json({
-            success: true,
-            message: "Billing created successfully"
-        });
     } catch (error) {
         res.status(500).json({
             success: false,
