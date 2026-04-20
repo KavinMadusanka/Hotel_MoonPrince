@@ -1,5 +1,5 @@
 import express from "express";
-import { getUserDetails, getUserDetailsById, login, logout, register, updateUserDetails, } from "../controllers/authController.js";
+import { getUserDetails, getUserDetailsById, getUserNameDpById, login, logout, register, updateUserDetails, } from "../controllers/authController.js";
 import { createDiskUploader } from "../middlewares/uploadMiddleware.js";
 import path from "path";
 import { isReceptionist, requiredSignIn } from "../middlewares/authMiddelware.js";
@@ -14,7 +14,8 @@ router.post("/register", upload.single("photo"), register);
 router.post("/login", login);
 router.get("/get-user-details", requiredSignIn, getUserDetails);
 router.get("/get-details/:id", requiredSignIn, isReceptionist, getUserDetailsById);
+router.get("/get-user-name-dp/:id", getUserNameDpById);
 router.patch("/update-profile", requiredSignIn, upload.single("photo"), updateUserDetails);
-router.post("/logout", requiredSignIn, logout);
+router.post("/logout", logout);
 
 export default router;

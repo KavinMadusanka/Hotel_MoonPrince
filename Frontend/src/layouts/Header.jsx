@@ -17,15 +17,17 @@ const Header = () => {
     const [auth, setAuth] = useAuth();
     const [open, setOpen] = useState(false);
     const [user, setUser] = useState({});
-    // const [photo, setPhoto] = useState([]);
+    const [photo, setPhoto] = useState([]);
     const [imageLoaded, setImageLoaded] = useState(false);;
     useEffect(() => {
         const fetchUserProfile = async () => {
             try {
                 const res = await getUserDetails();
-                console.log(res)
+                // console.log(res)
                 if (res.data.success) {
                     setUser(res.data.user);
+                    const imageUrl = `${import.meta.env.VITE_USER_SERVICE_URL}${import.meta.env.VITE_API_VERSION}/user_photos/${res.data.user.photo}`;
+                    setPhoto(imageUrl);
                 } else {
                     toast.error(res.data.message);
                 }
@@ -40,9 +42,9 @@ const Header = () => {
         try {
             const res = await logout();
             if (res.data.success) {
-
-                toast.success(res.data.message);
+                // toast.success(res.data.message);
                 localStorage.removeItem('auth');
+                localStorage.removeItem('token');
                 Cookies.remove('access_token');
                 setAuth({ token: "" });
                 navigate('/home');
@@ -55,11 +57,10 @@ const Header = () => {
     };
 
     const navLinks = [
-        {href : "/home", lable: "Home"},
-        {href : "/guest-rooms", lable: "Rooms"},
-        {href : "/home#amenities", lable: "Amenities"},
-        {href : "/view-bills", lable: "Bills"},
-        {href : "/announcements", lable: "Announcements"},
+        {href : "/home", label: "Home"},
+        {href : "/guest-rooms", label: "Rooms"},
+        {href : "/home#amenities", label: "Amenities"},
+        {href : "/announcements", label: "Announcements"},
     ]
 
 
@@ -91,13 +92,14 @@ const Header = () => {
                 {/*desktop nav*/}
                 <div className='hidden md:flex items-center gap-10'>
                     {
-                        navLinks.map((link, index) => (
+                        navLinks
+                        .map((link, index) => (
                             <a key={index} href={link.href} 
                             onClick={() => setMenuOpen(false)}
                             className={`text-sm lg:text-xl font-medium relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
                                 after:w-0 hover:after:w-full after:bg-purple-500 after:transition-all 
                                 ${ activeLink === link.href ? "text-purple-500 after:w-full": "text-slate-500 dark:text-slate-400 hover:text-purple-500" }`}>
-                                {link.lable}
+                                {link.label}
                             </a> 
                         ))
                     }
@@ -121,7 +123,7 @@ const Header = () => {
                                 <>
                                 {!imageLoaded && <User2 size={24} />}
                                 <img
-                                    src={`${import.meta.env.VITE_USER_SERVICE_URL}${import.meta.env.VITE_API_VERSION}/userService/user_photos/${user.photo}`}   // replace with user image
+                                    src={photo}   // replace with user image
                                     alt="profile"
                                     onLoad={() => setImageLoaded(true)}
                                     className="w-full h-full object-cover scale-200 object-top"
@@ -135,10 +137,40 @@ const Header = () => {
 
                     {/* Dropdown */}
                     {open && (
-                        <div className="absolute right-0 top-full mt-2 w-40 bg-white rounded-lg shadow-lg border z-50">
+                        <div className="absolute right-0 top-full mt-2 w-45 bg-white rounded-lg shadow-lg border z-50">
                         
                         {auth?.token ? (
                             <>
+                            <button
+                                onClick={() => {
+                                navigate("/my-reservations");
+                                setOpen(false);
+                                }}
+                                className="block w-full text-left text-purple-800 px-4 py-2 bg-white! hover:bg-gray-100! hover:border-gray-100!"
+                            >
+                                My Reservations
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                navigate("/my-reviews");
+                                setOpen(false);
+                                }}
+                                className="block w-full text-left text-purple-800 px-4 py-2 bg-white! hover:bg-gray-100! hover:border-gray-100!"
+                            >
+                                My Reviews
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                navigate("/view-bill");
+                                setOpen(false);
+                                }}
+                                className="block w-full text-left text-purple-800 px-4 py-2 bg-white! hover:bg-gray-100! hover:border-gray-100!"
+                            >
+                                My Bills
+                            </button>
+
                             <button
                                 onClick={() => {
                                 navigate("/profile");

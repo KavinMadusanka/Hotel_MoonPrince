@@ -1,7 +1,7 @@
 import { createProxyMiddleware, fixRequestBody } from "http-proxy-middleware";
 
 const roomInventoryProxy = createProxyMiddleware({
-  target: process.env.ROOM_INVENTORY_SERVICE,
+  target: process.env.ROOM_INVENTORY_SERVICE || "https://room-inventory-service-861717114034.asia-southeast1.run.app",
   changeOrigin: true,
   pathRewrite: {
     "^/api/v1/roomInventoryService": "",

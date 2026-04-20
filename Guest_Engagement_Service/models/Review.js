@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 
 const reviewSchema = new mongoose.Schema({
 
-    roomId: {
-        type: mongoose.Schema.Types.ObjectId,
+    roomTypeId: {
+        type: String,
         required: true
     },
 
@@ -13,9 +13,9 @@ const reviewSchema = new mongoose.Schema({
     },
 
     bookingId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         required: true,
-        unique: true // one review per booking
+        unique: true
     },
 
     rating: {

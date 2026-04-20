@@ -11,8 +11,8 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:8090",
-        description: "Local development server"
+        url: "https://room-inventory-service-861717114034.asia-southeast1.run.app",
+        description: "Production server"
       }
     ],
     components: {

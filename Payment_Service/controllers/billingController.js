@@ -111,3 +111,21 @@ export const getBillingDetails = async (req, res) => {
         });
     }
 };
+
+//get bill details for user
+export const getUserBill = async (req, res) => {
+  try {
+    const userId  = req.user.id;
+    const bills = await billing.find({ userId, status: "pending" });
+    res.status(200).json({
+      success: true,
+      data: bills
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Side Error"
+    });
+  }
+}

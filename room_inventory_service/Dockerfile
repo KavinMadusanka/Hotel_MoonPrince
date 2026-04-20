@@ -2,11 +2,13 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+COPY ["package.json", "package-lock.json*", "./"]
+
+# RUN npm install --production
+RUN npm ci --omit=dev
 
 COPY . .
 
 EXPOSE 8090
 
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

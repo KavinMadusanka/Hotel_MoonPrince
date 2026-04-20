@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import { getAvailability, getRoomTypeById } from "../../../apiService/roomService";
 import {
@@ -11,11 +11,13 @@ import {
   CalendarDays
 } from "lucide-react";
 import Layout from "../../../layouts/Layout.jsx";
+import RoomReviewsContainer from "../../GuestEngagement/guest/RoomReviewsContainer.jsx";
 
 function RoomDetailsPage() {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const reviewsRef = useRef(null);
 
   const [roomType, setRoomType] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -42,6 +44,15 @@ function RoomDetailsPage() {
 
     fetchRoomType();
   }, [id]);
+
+  // Scroll to reviews container if coming from reviews page
+  useEffect(() => {
+    if (!loading && location.state?.scrollToReviews && reviewsRef.current) {
+      setTimeout(() => {
+        reviewsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 300);
+    }
+  }, [loading, location.state?.scrollToReviews]);
 
   useEffect(() => {
     const fetchAvailability = async () => {
@@ -404,6 +415,11 @@ function RoomDetailsPage() {
                 )}
               </div>
             </section>
+          </div>
+
+          {/* Guest Reviews */}
+          <div ref={reviewsRef}>
+            <RoomReviewsContainer roomTypeId={roomType._id} />
           </div>
 
         </div>

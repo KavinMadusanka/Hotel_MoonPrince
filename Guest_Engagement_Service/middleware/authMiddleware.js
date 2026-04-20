@@ -3,7 +3,15 @@ import JWT from 'jsonwebtoken';
 //check user is authenticated or not
 export const requiredSignIn = async (req, res, next) => {
     try {
-        const token = req.cookies.access_token;
+        let token = req.cookies.access_token;
+
+        if (!token) {
+            const authHeader = req.headers.authorization;
+            if (authHeader && authHeader.startsWith("Bearer ")) {
+                token = authHeader.split(" ")[1];
+            }
+        }
+
         if(!token){
             return res.status(401).json({
                 success: false,
@@ -23,8 +31,7 @@ export const requiredSignIn = async (req, res, next) => {
 
 // user check
 export const isUser = (req, res, next) => {
-    const userId = req.headers["user-id"];
-    const role = req.headers["user-role"];
+    const role = req.user?.role;
     if (role !== 0) {
         return res.status(403).json({
         message: "Access denied",
@@ -35,8 +42,7 @@ export const isUser = (req, res, next) => {
 
 // admin check
 export const isAdmin = (req, res, next) => {
-    const userId = req.headers["user-id"];
-    const role = req.headers["user-role"];
+    const role = req.user?.role;
     if (role !== 2) {
         return res.status(403).json({
         message: "Access denied: Admin only",
@@ -47,8 +53,7 @@ export const isAdmin = (req, res, next) => {
 
 // receptionist check
 export const isReceptionist = (req, res, next) => {
-    const userId = req.headers["user-id"];
-    const role = req.headers["user-role"];
+    const role = req.user?.role;
     if (role !== 1) {
         return res.status(403).json({
         message: "Access denied: Receptionist only",

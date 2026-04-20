@@ -18,7 +18,7 @@ connectDB();
 
 app.use(helmet());
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: ['http://localhost:5173', 'https://frontend-861717114034.asia-southeast1.run.app'],
   credentials: true
 }));
 app.use(express.json());

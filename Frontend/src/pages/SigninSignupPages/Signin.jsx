@@ -50,13 +50,13 @@ const Signin = () => {
 
       if (res.data.success) {
         const { token } = res.data;
-        console.log(token)
+        // console.log(token)
 
         setAuth({
           ...auth,
           token,
         });
-
+        localStorage.setItem("token", token);
         toast.success("Login Successful");
         Cookies.set("access_token", token, { expires: 1 });
 
@@ -64,6 +64,8 @@ const Signin = () => {
         const decoded = parseJwt(token);
         if (Number(decoded?.role) === 2) {
           navigate("/admin-dashboard");
+        } else if (Number(decoded?.role) === 1) {
+          navigate("/billing");
         } else {
           navigate("/home");
         }

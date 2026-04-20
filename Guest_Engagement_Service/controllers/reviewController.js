@@ -4,11 +4,28 @@ import Review from "../models/Review.js";
 // Create Review
 export const createReview = async (req, res) => {
     try {
-        const { roomId, bookingId, rating, comment } = req.body;
+        const { roomTypeId, bookingId, rating, comment } = req.body;
         const userId = req.user?.id;
 
         if (!userId) {
             return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        // validate incoming payload to avoid mongoose validation errors
+        if (!bookingId) {
+            return res.status(400).json({ message: "bookingId is required" });
+        }
+
+        if (!roomTypeId) {
+            return res.status(400).json({ message: "roomTypeId is required" });
+        }
+
+        if (!rating || typeof rating !== 'number') {
+            return res.status(400).json({ message: "rating is required and must be a number" });
+        }
+
+        if (!comment) {
+            return res.status(400).json({ message: "comment is required" });
         }
 
         // check duplicate review for the same booking
@@ -24,7 +41,7 @@ export const createReview = async (req, res) => {
         // validate booking service here
 
         const review = await Review.create({
-            roomId,
+            roomTypeId,
             userId,
             bookingId,
             rating,
@@ -38,6 +55,9 @@ export const createReview = async (req, res) => {
         });
 
     } catch (error) {
+        // log error for debugging
+        // eslint-disable-next-line no-console
+        console.error(error);
         res.status(500).json({
             error: error.message
         });
@@ -69,6 +89,8 @@ export const getSingleReview = async (req, res) => {
         });
 
     } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
         res.status(500).json({
             success: false,
             error: error.message
@@ -123,6 +145,8 @@ export const updateReview = async (req, res) => {
         });
         
     } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
         res.status(500).json({
             success: false,
             error: error.message
@@ -133,9 +157,9 @@ export const updateReview = async (req, res) => {
 // Get Reviews by Room ID
 export const getReviewsByRoomId = async (req, res) => {
     try {
-        const { roomId } = req.params;
+        const { roomTypeId } = req.params;
 
-        const reviews = await Review.find({ roomId })
+        const reviews = await Review.find({ roomTypeId })
             .sort({ isPinned: -1, createdAt: -1 });
 
         res.status(200).json({
@@ -145,6 +169,8 @@ export const getReviewsByRoomId = async (req, res) => {
         });
 
     } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
         res.status(500).json({
             success: false,
             error: error.message
@@ -192,6 +218,8 @@ export const deleteReview = async (req, res) => {
         });
 
     } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
         res.status(500).json({
             success: false,
             error: error.message
@@ -212,9 +240,9 @@ export const pinReview = async (req, res) => {
             });
         }
 
-        // unpin all reviews for that room
+        // unpin all reviews for that roomType
         await Review.updateMany(
-            { roomId: review.roomId },
+            { roomTypeId: review.roomTypeId },
             { isPinned: false }
         );
 
@@ -262,6 +290,60 @@ export const getReviewsByUser = async (req, res) => {
         });
 
     } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
+// Unpin review
+export const unpinReview = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const review = await Review.findById(id);
+
+        if (!review) {
+            return res.status(404).json({
+                message: "Review not found"
+            });
+        }
+
+        const updated = await Review.findByIdAndUpdate(
+            id,
+            { isPinned: false },
+            { new: true }
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "Review unpinned successfully",
+            data: updated
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
+// Get All Reviews
+export const getAllReviews = async (req, res) => {
+    try {
+        const reviews = await Review.find({}).sort({ rating: -1, createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            count: reviews.length,
+            data: reviews
+        });
+
+    } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
         res.status(500).json({
             success: false,
             error: error.message

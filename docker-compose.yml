@@ -33,11 +33,13 @@ services:
       - "8090:8090"
     depends_on:
       - user_service
+    env_file:
+    - ./room_inventory_service/.env
 
   guest_service:
     build: ./Guest_Engagement_Service
     ports:
-      - "8080:8080"
+      - "8070:8070"
     volumes:
       - ./Guest_Engagement_Service:/app
       - /app/node_modules
@@ -78,9 +80,11 @@ services:
       - /app/node_modules
     environment:
       - CHOKIDAR_USEPOLLING=true
+    command: npm run dev -- --host
     depends_on:
       - api_gateway
       - user_service
       - payment_service
       - room_inventory_service
       - reservation_service
+      - guest_service

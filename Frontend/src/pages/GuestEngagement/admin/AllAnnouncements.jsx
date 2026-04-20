@@ -124,16 +124,26 @@ export default function AllAnnouncementsPage() {
       <div onClick={closeAll} className="rounded-[30px] bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.06)] md:p-6">
 
         {/* ── HEADER ── */}
-        <div className="mb-6">
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700">
-            <Megaphone size={14} /> Admin Panel
+        <div className="mb-6 flex items-start justify-between gap-4">
+          <div>
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700">
+              <Megaphone size={14} /> Admin Panel
+            </div>
+            <h2 className="m-0 text-[20px] font-bold leading-tight text-[#1f2430] md:text-[24px]">
+              All Announcements
+            </h2>
+            <p className="mt-1 text-sm leading-6 text-[#6b7280]">
+              Manage published announcements and drafts from one place.
+            </p>
           </div>
-          <h2 className="m-0 text-[20px] font-bold leading-tight text-[#1f2430] md:text-[24px]">
-            All Announcements
-          </h2>
-          <p className="mt-1 text-sm leading-6 text-[#6b7280]">
-            Manage published announcements and drafts from one place.
-          </p>
+          <button
+            onClick={() => navigate('/add-announcement')}
+            className="ann-no-outline flex flex-shrink-0 items-center gap-2 rounded-full bg-violet-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-800"
+            style={{ border: "none", outline: "none", boxShadow: "none", cursor: "pointer" }}
+          >
+            <span style={{ fontSize: "16px" }}>+</span>
+            Add Announcement
+          </button>
         </div>
 
         {/* ── TOOLBAR ── */}

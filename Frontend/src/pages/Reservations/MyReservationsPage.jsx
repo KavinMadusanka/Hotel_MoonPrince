@@ -62,8 +62,8 @@ function MyReservationsPage() {
     }
   };
 
-  const handleReview = (reservationId) => {
-    navigate(`/write-review/${reservationId}`);
+  const handleReview = (reservationId, reservation) => {
+    navigate(`/give-review/${reservationId}`, { state: { reservation } });
   };
 
   const getStatusStyles = (status) => {
@@ -194,9 +194,9 @@ function MyReservationsPage() {
                     {/* ← Review button — checked_in OR completed */}
                     <div>
                       {(item.status === "checked_in" || item.status === "completed") && (
-                        <button
+                          <button
                           type="button"
-                          onClick={() => handleReview(item._id)}
+                          onClick={() => handleReview(item._id, item)}
                           className="inline-flex items-center gap-2 rounded-full bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-600"
                         >
                           <Star size={14} />

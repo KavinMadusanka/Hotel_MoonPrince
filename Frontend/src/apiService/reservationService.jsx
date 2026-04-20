@@ -5,7 +5,7 @@ const API_VERSION = import.meta.env.VITE_API_VERSION;
 
 export const createReservation = async (reservationData) => {
   const res = await axios.post(
-    `${API_BASE_URL}${API_VERSION}/reservations`,
+    `${API_BASE_URL}${API_VERSION}/reservations/api/v1/reservations`,
     reservationData,
     { withCredentials: true }
   );
@@ -14,7 +14,7 @@ export const createReservation = async (reservationData) => {
 
 export const getAllReservations = async () => {
   const res = await axios.get(
-    `${API_BASE_URL}${API_VERSION}/reservations`,
+    `${API_BASE_URL}${API_VERSION}/reservations/api/v1/reservations`,
     { withCredentials: true }
   );
   return res;
@@ -22,7 +22,7 @@ export const getAllReservations = async () => {
 
 export const getReservationById = async (id) => {
   const res = await axios.get(
-    `${API_BASE_URL}${API_VERSION}/reservations/${id}`,
+    `${API_BASE_URL}${API_VERSION}/reservations/api/v1/reservations/${id}`,
     { withCredentials: true }
   );
   return res;
@@ -30,7 +30,7 @@ export const getReservationById = async (id) => {
 
 export const getReservationsByUserId = async (userId) => {
   const res = await axios.get(
-    `${API_BASE_URL}${API_VERSION}/reservations/user/${userId}`,
+    `${API_BASE_URL}${API_VERSION}/reservations/api/v1/reservations/user/${userId}`,
     { withCredentials: true }
   );
   return res;
@@ -38,7 +38,7 @@ export const getReservationsByUserId = async (userId) => {
 
 export const updateReservation = async (id, payload) => {
   const res = await axios.put(
-    `${API_BASE_URL}${API_VERSION}/reservations/${id}`,
+    `${API_BASE_URL}${API_VERSION}/reservations/api/v1/reservations/${id}`,
     payload,
     { withCredentials: true }
   );
@@ -47,7 +47,7 @@ export const updateReservation = async (id, payload) => {
 
 export const confirmReservation = async (id) => {
   const res = await axios.post(
-    `${API_BASE_URL}${API_VERSION}/reservations/${id}/confirm`,
+    `${API_BASE_URL}${API_VERSION}/reservations/api/v1/reservations/${id}/confirm`,
     {},
     { withCredentials: true }
   );
@@ -56,7 +56,7 @@ export const confirmReservation = async (id) => {
 
 export const cancelReservation = async (id, cancellationReason = "") => {
   const res = await axios.post(
-    `${API_BASE_URL}${API_VERSION}/reservations/${id}/cancel`,
+    `${API_BASE_URL}${API_VERSION}/reservations/api/v1/reservations/${id}/cancel`,
     { cancellationReason },
     { withCredentials: true }
   );
@@ -65,7 +65,7 @@ export const cancelReservation = async (id, cancellationReason = "") => {
 
 export const checkInReservation = async (id) => {
   const res = await axios.post(
-    `${API_BASE_URL}${API_VERSION}/checkinout/${id}/check-in`,
+    `${API_BASE_URL}${API_VERSION}/reservations/api/v1/checkinout/${id}/check-in`,
     {},
     { withCredentials: true }
   );
@@ -74,7 +74,7 @@ export const checkInReservation = async (id) => {
 
 export const checkOutReservation = async (id) => {
   const res = await axios.post(
-    `${API_BASE_URL}${API_VERSION}/checkinout/${id}/check-out`,
+    `${API_BASE_URL}${API_VERSION}/reservations/api/v1/checkinout/${id}/check-out`,
     {},
     { withCredentials: true }
   );
