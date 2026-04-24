@@ -10,11 +10,8 @@ info:
     name: Guest Engagement Service
 
 servers:
-  - url: http://localhost:{port}
+  - url: http://localhost:8070
     description: Local development server
-    variables:
-      port:
-        default: "5000"
   - url: https://frontend-861717114034.asia-southeast1.run.app
     description: Production server
 
@@ -24,15 +21,18 @@ tags:
   - name: Reviews
     description: Manage guest reviews tied to room bookings
 
+security:
+  - BearerAuth: []
+
 components:
   securitySchemes:
     BearerAuth:
-    type: http
-    scheme: bearer
-    bearerFormat: JWT
-    description: |
-      JWT token obtained from the Auth service.
-      Include as Authorization: Bearer <token>
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token obtained from the Auth service.
+        Include as Authorization: Bearer <token>
     CookieAuth:
       type: apiKey
       in: cookie

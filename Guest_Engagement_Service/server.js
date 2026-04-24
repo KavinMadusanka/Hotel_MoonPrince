@@ -29,8 +29,12 @@ const swaggerDocument = load(
 
 // cors
 const corsOptions = {
-    origin: ['http://localhost:5173', 'https://frontend-861717114034.asia-southeast1.run.app'], // Allow your frontend domain
-    credentials: true, // Allow credentials (cookies)
+    origin: [
+        'http://localhost:5173',
+        'http://localhost:5000',
+        'https://frontend-861717114034.asia-southeast1.run.app'
+    ],
+    credentials: true,
 };
 
 //middelware
