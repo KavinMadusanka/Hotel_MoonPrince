@@ -142,3 +142,45 @@ export const getUserBill = async (req, res) => {
     });
   }
 }
+
+// update billing status from pending to paid (receptionist only)
+export const updateBillingStatus = async (req, res) => {
+  try {
+    const { billingId } = req.params;
+
+    // find billing record first to check it exists and is still pending
+    const existingBilling = await billing.findById(billingId);
+
+    if (!existingBilling) {
+      return res.status(404).json({
+        success: false,
+        message: "Billing record not found"
+      });
+    }
+
+    if (existingBilling.status === "paid") {
+      return res.status(400).json({
+        success: false,
+        message: "This billing record is already marked as paid"
+      });
+    }
+
+    const updatedBilling = await billing.findByIdAndUpdate(
+      billingId,
+      { status: "paid" },
+      { new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Payment status updated to paid successfully",
+      data: updatedBilling
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Side Error"
+    });
+  }
+};
