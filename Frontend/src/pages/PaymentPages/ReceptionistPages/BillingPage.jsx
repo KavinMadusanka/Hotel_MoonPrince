@@ -3,7 +3,7 @@ import AdminPageLayout from '../../../layouts/AdminPageLayout';
 import { ClipboardList, PlusCircle, Printer, Receipt, Trash, UserSearch } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getRooms } from '../../../apiService/roomService';
-import { getAllReservations, getBillDetails, removeItemFromBill } from '../../../apiService/PaymentService';
+import { getAllReservations, getBillDetails, removeItemFromBill, updateBillingStatus } from '../../../apiService/PaymentService';
 import { getUserDetailsById } from '../../../apiService/userService';
 import AddBillingItemModal from './AddBillingItemModal';
 import AddBillItemToBillModal from './AddBillItemToBillModel';
@@ -18,6 +18,7 @@ const BillingPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [showAddItemModal, setShowAddItemModal] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [paymentLoading, setPaymentLoading] = useState(false);
 
     const roomCharges = billingItems
         .filter(item => item.ItemType === "Accommodation")
@@ -90,6 +91,30 @@ const BillingPage = () => {
         const updatedItems = await removeItemFromBill(bill._id, id);
         console.log(updatedItems.data.data.billingItems);
         setBillingItems(updatedItems.data.data.billingItems);
+    };
+
+    //NEW - handle mark as paid button click
+    const handleMarkAsPaid = async () => {
+        if (!bill) {
+            toast.error("No bill found. Please search for a room first.");
+            return;
+        }
+ 
+        if (bill.status === "paid") {
+            toast.error("This bill is already marked as paid.");
+            return;
+        }
+ 
+        try {
+            setPaymentLoading(true);
+            const response = await updateBillingStatus(bill._id);
+            setBill(response.data.data);  // update bill state so status shows "paid"
+            toast.success("Payment marked as paid successfully!");
+        } catch (error) {
+            toast.error(error?.response?.data?.message || "Failed to update payment status.");
+        } finally {
+            setPaymentLoading(false);
+        }
     };
 
   return (
@@ -345,9 +370,17 @@ const BillingPage = () => {
                         Generate Invoice
                         </button>
 
-                        <button className="w-full text-white py-3 rounded-xl flex items-center justify-center gap-2 shadow-md hover:opacity-90">
-                        <Receipt size={18} />
-                            Paid
+                        <button
+                            onClick={handleMarkAsPaid}
+                            disabled={paymentLoading || bill?.status === "paid"}
+                            className={`w-full text-white py-3 rounded-xl flex items-center justify-center gap-2 shadow-md transition-opacity
+                                ${bill?.status === "paid"
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : "hover:opacity-90"
+                                }`}
+                        >
+                            <Receipt size={18} />
+                            {paymentLoading ? "Processing..." : bill?.status === "paid" ? "Already Paid" : "Paid"}
                         </button>
 
                         <button className="w-full border border-purple-300 text-white py-3 rounded-xl hover:bg-purple-50">

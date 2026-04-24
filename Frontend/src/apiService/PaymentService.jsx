@@ -99,3 +99,17 @@ export const createBillForReservation = async (userId, roomId) => {
         }
     );
 }
+
+// update billing status from pending to paid
+export const updateBillingStatus = async (billingId) => {
+    return axios.patch(
+        `${BASE_URL}${API_VERSION}/payment/billing/update-status/${billingId}`,
+        {},
+        {
+            withCredentials: true,
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    );
+}
