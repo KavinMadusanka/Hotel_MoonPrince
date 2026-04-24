@@ -10,6 +10,8 @@ import connectDB from './config/db.js';
 import billingRoutes from './routers/billingRoute.js';
 import itemsRoutes from './routers/itemsRoute.js';
 
+import { setupSwagger } from './swagger.js';
+
 dotenv.config()
 
 connectDB();
@@ -30,6 +32,9 @@ app.use(cookieParser());
 // app.use(cors());
 app.use(cors(corsOptions));
 app.use(helmet({crossOriginResourcePolicy: { policy: "cross-origin" }}));
+
+// Swagger UI will be available at:  http://localhost:8050/api-docs
+setupSwagger(app);
 
 app.use("/billing", billingRoutes);
 app.use("/items", itemsRoutes);
