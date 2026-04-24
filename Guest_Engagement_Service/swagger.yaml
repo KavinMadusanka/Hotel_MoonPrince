@@ -1,0 +1,934 @@
+openapi: 3.0.0
+info:
+  title: Guest Engagement Service API
+  description: |
+    Microservice handling Announcements and Reviews for the hotel/restaurant guest engagement system.
+    - **Announcements**: Admin-managed notices with priority levels, scheduling, and image support.
+    - **Reviews**: Guest reviews tied to bookings and room types, with pin/unpin and 24h edit window.
+  version: 1.0.0
+  contact:
+    name: Guest Engagement Service
+
+servers:
+  - url: http://localhost:{port}
+    description: Local development server
+    variables:
+      port:
+        default: "5000"
+  - url: https://frontend-861717114034.asia-southeast1.run.app
+    description: Production server
+
+tags:
+  - name: Announcements
+    description: Manage hotel/restaurant announcements (Admin only for write operations)
+  - name: Reviews
+    description: Manage guest reviews tied to room bookings
+
+components:
+  securitySchemes:
+    BearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
+    description: |
+      JWT token obtained from the Auth service.
+      Include as Authorization: Bearer <token>
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token
+      description: JWT stored in an HTTP-only cookie
+
+  schemas:
+    Announcement:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "664f1c2e8a1b2c3d4e5f6a7b"
+        title:
+          type: string
+          example: "Pool Maintenance Notice"
+        content:
+          type: string
+          example: "The pool will be closed for maintenance on Saturday."
+        priority:
+          type: string
+          enum: [normal, important, urgent]
+          example: important
+        image:
+          type: string
+          nullable: true
+          description: Cloudinary image URL
+          example: "https://res.cloudinary.com/demo/image/upload/announcements/pool.jpg"
+        publishDate:
+          type: string
+          format: date-time
+          example: "2026-04-24T08:00:00.000Z"
+        expiryDate:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-05-01T08:00:00.000Z"
+        isPinned:
+          type: boolean
+          default: false
+        isDraft:
+          type: boolean
+          default: false
+        createdBy:
+          type: string
+          example: "admin"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AnnouncementInput:
+      type: object
+      required:
+        - title
+        - content
+      properties:
+        title:
+          type: string
+          example: "Pool Maintenance Notice"
+        content:
+          type: string
+          example: "The pool will be closed for maintenance on Saturday."
+        priority:
+          type: string
+          enum: [normal, important, urgent]
+          default: normal
+        publishDate:
+          type: string
+          format: date-time
+          example: "2026-04-24T08:00:00.000Z"
+        expiryDate:
+          type: string
+          format: date-time
+          example: "2026-05-01T08:00:00.000Z"
+        isPinned:
+          type: boolean
+          default: false
+        isDraft:
+          type: boolean
+          default: false
+        image:
+          type: string
+          format: binary
+          description: Optional image file (jpg, jpeg, png)
+
+    Review:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "664f1c2e8a1b2c3d4e5f6b8c"
+        roomTypeId:
+          type: string
+          example: "room_deluxe_01"
+        userId:
+          type: string
+          example: "664f1c2e8a1b2c3d4e5f6a00"
+        bookingId:
+          type: string
+          example: "BKG-2026-00123"
+        rating:
+          type: number
+          minimum: 1
+          maximum: 5
+          example: 4
+        comment:
+          type: string
+          example: "Great room with a lovely view!"
+        isPinned:
+          type: boolean
+          default: false
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ReviewInput:
+      type: object
+      required:
+        - roomTypeId
+        - bookingId
+        - rating
+        - comment
+      properties:
+        roomTypeId:
+          type: string
+          example: "room_deluxe_01"
+        bookingId:
+          type: string
+          example: "BKG-2026-00123"
+        rating:
+          type: number
+          minimum: 1
+          maximum: 5
+          example: 4
+        comment:
+          type: string
+          example: "Great room with a lovely view!"
+
+    ReviewUpdateInput:
+      type: object
+      properties:
+        rating:
+          type: number
+          minimum: 1
+          maximum: 5
+          example: 5
+        comment:
+          type: string
+          example: "Updated: Absolutely wonderful stay!"
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Operation successful"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "An error occurred"
+
+    UnauthorizedResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Unauthorized access."
+
+    ForbiddenResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Access denied: Admin only"
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid JWT token
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UnauthorizedResponse"
+    Forbidden:
+      description: Authenticated but insufficient role
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ForbiddenResponse"
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+# ─────────────────────────────────────────────
+# ANNOUNCEMENT ROUTES
+# ─────────────────────────────────────────────
+paths:
+  /announcements:
+    post:
+      tags: [Announcements]
+      summary: Create a new announcement
+      description: Admin only. Accepts multipart/form-data to support optional image upload.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/AnnouncementInput"
+      responses:
+        "201":
+          description: Announcement created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Announcement created successfully"
+                  data:
+                    $ref: "#/components/schemas/Announcement"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+    get:
+      tags: [Announcements]
+      summary: Get all announcements
+      description: Public. Returns all announcements sorted by creation date descending.
+      responses:
+        "200":
+          description: List of all announcements
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  count:
+                    type: integer
+                    example: 5
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Announcement"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /announcements/filter:
+    get:
+      tags: [Announcements]
+      summary: Filter announcements
+      description: Public. Filter by priority, pinned status, or draft status.
+      parameters:
+        - in: query
+          name: priority
+          schema:
+            type: string
+            enum: [normal, important, urgent]
+          description: Filter by priority level
+        - in: query
+          name: isPinned
+          schema:
+            type: boolean
+          description: Filter by pinned status
+        - in: query
+          name: isDraft
+          schema:
+            type: boolean
+          description: Filter by draft status
+      responses:
+        "200":
+          description: Filtered announcements
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Announcement"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /announcements/active:
+    get:
+      tags: [Announcements]
+      summary: Get active announcements
+      description: Public. Returns published announcements whose publishDate has passed and expiryDate has not yet been reached.
+      responses:
+        "200":
+          description: List of active announcements
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Announcement"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /announcements/{id}:
+    get:
+      tags: [Announcements]
+      summary: Get a single announcement
+      description: Public. Retrieve one announcement by its MongoDB ObjectId.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: MongoDB ObjectId of the announcement
+          example: "664f1c2e8a1b2c3d4e5f6a7b"
+      responses:
+        "200":
+          description: Announcement found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: "#/components/schemas/Announcement"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+    put:
+      tags: [Announcements]
+      summary: Update an announcement
+      description: Admin only. Update fields of an existing announcement. Optionally replace the image.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          example: "664f1c2e8a1b2c3d4e5f6a7b"
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/AnnouncementInput"
+      responses:
+        "200":
+          description: Announcement updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: "#/components/schemas/Announcement"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+    delete:
+      tags: [Announcements]
+      summary: Delete an announcement
+      description: Admin only. Also removes the associated image from Cloudinary.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          example: "664f1c2e8a1b2c3d4e5f6a7b"
+      responses:
+        "200":
+          description: Announcement deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /announcements/pin/{id}:
+    put:
+      tags: [Announcements]
+      summary: Pin an announcement
+      description: Admin only. Unpins all other announcements and pins the specified one.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          example: "664f1c2e8a1b2c3d4e5f6a7b"
+      responses:
+        "200":
+          description: Announcement pinned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: "#/components/schemas/Announcement"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /announcements/publish/{id}:
+    put:
+      tags: [Announcements]
+      summary: Publish a draft announcement
+      description: Admin only. Sets isDraft to false, making the announcement publicly visible.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          example: "664f1c2e8a1b2c3d4e5f6a7b"
+      responses:
+        "200":
+          description: Announcement published successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: "#/components/schemas/Announcement"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  # ─────────────────────────────────────────────
+  # REVIEW ROUTES
+  # ─────────────────────────────────────────────
+
+  /reviews:
+    post:
+      tags: [Reviews]
+      summary: Create a new review
+      description: Authenticated users only. One review per booking (enforced by unique bookingId).
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewInput"
+      responses:
+        "201":
+          description: Review created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: "#/components/schemas/Review"
+        "400":
+          description: Validation error or duplicate booking review
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "You already reviewed this booking"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /reviews/all:
+    get:
+      tags: [Reviews]
+      summary: Get all reviews
+      description: Public. Returns all reviews sorted by rating descending, then by date.
+      responses:
+        "200":
+          description: All reviews
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Review"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /reviews/room/{roomTypeId}:
+    get:
+      tags: [Reviews]
+      summary: Get reviews by room type
+      description: Public. Returns all reviews for a given room type. Pinned reviews appear first.
+      parameters:
+        - in: path
+          name: roomTypeId
+          required: true
+          schema:
+            type: string
+          example: "room_deluxe_01"
+      responses:
+        "200":
+          description: Reviews for the room type
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Review"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /reviews/user:
+    get:
+      tags: [Reviews]
+      summary: Get reviews by authenticated user
+      description: Returns reviews belonging to the currently authenticated user (extracted from JWT).
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      responses:
+        "200":
+          description: Reviews by the authenticated user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Review"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /reviews/user/{userId}:
+    get:
+      tags: [Reviews]
+      summary: Get reviews by user ID
+      description: Authenticated. Returns reviews for a specific user by their MongoDB ObjectId.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          example: "664f1c2e8a1b2c3d4e5f6a00"
+      responses:
+        "200":
+          description: Reviews by the specified user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Review"
+        "400":
+          description: Invalid user ID
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /reviews/pin/{id}:
+    put:
+      tags: [Reviews]
+      summary: Pin a review
+      description: Admin only. Unpins all reviews for the same room type, then pins the specified review.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          example: "664f1c2e8a1b2c3d4e5f6b8c"
+      responses:
+        "200":
+          description: Review pinned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: "#/components/schemas/Review"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /reviews/unpin/{id}:
+    put:
+      tags: [Reviews]
+      summary: Unpin a review
+      description: Admin only. Sets isPinned to false for the specified review.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          example: "664f1c2e8a1b2c3d4e5f6b8c"
+      responses:
+        "200":
+          description: Review unpinned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: "#/components/schemas/Review"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /reviews/{id}:
+    get:
+      tags: [Reviews]
+      summary: Get a single review
+      description: Public. Retrieve one review by its MongoDB ObjectId.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          example: "664f1c2e8a1b2c3d4e5f6b8c"
+      responses:
+        "200":
+          description: Review found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: "#/components/schemas/Review"
+        "400":
+          description: Invalid review ID format
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+    put:
+      tags: [Reviews]
+      summary: Update a review
+      description: Authenticated. Only the review owner can update. Edit window is 24 hours from creation.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          example: "664f1c2e8a1b2c3d4e5f6b8c"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewUpdateInput"
+      responses:
+        "200":
+          description: Review updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: "#/components/schemas/Review"
+        "400":
+          description: Edit window expired (24h limit)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "You can edit review only within 24 hours"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: Review belongs to another user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+    delete:
+      tags: [Reviews]
+      summary: Delete a review
+      description: Authenticated. Only the review owner can delete. Delete window is 24 hours from creation.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          example: "664f1c2e8a1b2c3d4e5f6b8c"
+      responses:
+        "200":
+          description: Review deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          description: Delete window expired (24h limit)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "You can delete review only within 24 hours"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: Review belongs to another user
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
